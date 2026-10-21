@@ -1,0 +1,4 @@
+# fichiers générés (refaits par tools/check.sh)
+build/
+.tools/
+tools/roblox.d.luau
