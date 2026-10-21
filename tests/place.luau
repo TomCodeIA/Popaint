@@ -445,7 +445,7 @@ test("chaque zone a son décor autour (montagnes, îlots, objets, collines lisse
 end)
 
 test("animations valides et brouillard léger", function()
-	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true }
+	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true, Sway = true, Drift = true, Swim = true, Blink = true }
 	local animated, mists = 0, 0
 	for _, d in Map:GetDescendants() do
 		local a = d:GetAttribute("Anim")

@@ -82,7 +82,7 @@ function MiniMap.start()
 					Name = z.Id,
 					Position = toMap(ox, oz),
 					Size = UDim2.fromScale(w / (MAX_X - MIN_X), w / (MAX_Z - MIN_Z)),
-					BackgroundColor3 = Color3.fromRGB(150, 150, 158),
+					BackgroundColor3 = Config.GreyColor,
 				})
 				Ui.corner(zf, UDim.new(0, 6))
 				local fill = Ui.frame(zf, {

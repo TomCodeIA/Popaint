@@ -4,7 +4,7 @@
 
 local Config = {}
 
-Config.Version = "0.5.0"
+Config.Version = "0.6.0"
 
 -- Le contenu (zones, compagnons, quêtes, événements, cosmétiques) est dans le dossier Content.
 local ContentFolder = script.Parent:WaitForChild("Content")
@@ -34,7 +34,7 @@ Config.LoadRetryDelay = 4
 
 ---------------------------------------------------------------- Grille de peinture
 Config.TileSize = 4
-Config.GreyColor = Color3.fromRGB(150, 150, 158)
+Config.GreyColor = Color3.fromRGB(176, 172, 186) -- gris doux (légèrement lavande)
 
 ---------------------------------------------------------------- Bulles (valeurs de base, avant améliorations)
 Config.BubbleSpawnInterval = 1.25
@@ -174,11 +174,11 @@ Config.ResetWaveDuration = 2
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythic"
 
 Config.Rarities = {
-	{ Id = "Common", Chance = 60, Color = Color3.fromRGB(200, 200, 210) },
-	{ Id = "Rare", Chance = 25, Color = Color3.fromRGB(82, 180, 255) },
-	{ Id = "Epic", Chance = 10, Color = Color3.fromRGB(186, 100, 255) },
-	{ Id = "Legendary", Chance = 4.5, Color = Color3.fromRGB(255, 190, 40) },
-	{ Id = "Mythic", Chance = 0.5, Color = Color3.fromRGB(255, 70, 140) },
+	{ Id = "Common", Chance = 60, Color = Color3.fromRGB(200, 200, 214) },
+	{ Id = "Rare", Chance = 25, Color = Color3.fromRGB(120, 192, 255) },
+	{ Id = "Epic", Chance = 10, Color = Color3.fromRGB(190, 140, 255) },
+	{ Id = "Legendary", Chance = 4.5, Color = Color3.fromRGB(255, 196, 70) },
+	{ Id = "Mythic", Chance = 0.5, Color = Color3.fromRGB(255, 120, 176) },
 }
 
 -- Bonus de base par rareté (multipliés par la force de l'œuf et le rang Doré/Arc-en-ciel)
@@ -203,6 +203,7 @@ export type CompanionDef = {
 	Zone: string,
 	Power: number, -- force de l'œuf (zone)
 	Color: Color3,
+	Row: any, -- ligne complète de Content/Companions (apparence 3D "Look")
 }
 
 Config.Companions = {} :: { [string]: CompanionDef }
@@ -221,6 +222,7 @@ for _, row in content("Companions") do
 		Zone = row.Egg,
 		Power = if zone then zone.EggPower else 2.5,
 		Color = row.Color,
+		Row = row,
 	}
 	Config.Companions[def.Id] = def
 	if zone then
@@ -287,17 +289,18 @@ Config.TutorialPopTarget = 5
 Config.TutorialReward = 100
 
 ---------------------------------------------------------------- Couleurs de peinture des joueurs
+-- Pastel « soutenu » : doux pour les yeux mais bien visible sur les cases grises
 Config.PaintPalette = {
-	Color3.fromRGB(255, 92, 168),
-	Color3.fromRGB(82, 215, 255),
-	Color3.fromRGB(255, 214, 64),
-	Color3.fromRGB(120, 255, 140),
-	Color3.fromRGB(186, 120, 255),
-	Color3.fromRGB(255, 150, 72),
-	Color3.fromRGB(255, 120, 120),
-	Color3.fromRGB(96, 255, 222),
-	Color3.fromRGB(255, 170, 230),
-	Color3.fromRGB(150, 180, 255),
+	Color3.fromRGB(255, 150, 196), -- rose
+	Color3.fromRGB(130, 206, 250), -- ciel
+	Color3.fromRGB(255, 220, 120), -- beurre
+	Color3.fromRGB(140, 226, 170), -- menthe
+	Color3.fromRGB(190, 160, 250), -- lavande
+	Color3.fromRGB(255, 184, 140), -- pêche
+	Color3.fromRGB(255, 160, 160), -- corail
+	Color3.fromRGB(130, 226, 214), -- turquoise
+	Color3.fromRGB(240, 170, 230), -- lilas
+	Color3.fromRGB(170, 186, 250), -- pervenche
 }
 
 Config.BaseCount = 10

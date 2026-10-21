@@ -116,35 +116,35 @@ end
 
 ---------------------------------------------------------------- éclairage
 Lighting.Technology = Enum.Technology.Future
-Lighting.Brightness = 2.6
+Lighting.Brightness = 2.3
 Lighting.ClockTime = 14
-Lighting.Ambient = rgb(120, 100, 140)
-Lighting.OutdoorAmbient = rgb(190, 170, 220)
+Lighting.Ambient = rgb(150, 138, 168)
+Lighting.OutdoorAmbient = rgb(206, 196, 226)
 Lighting.EnvironmentDiffuseScale = 0.6
 Lighting.EnvironmentSpecularScale = 0.6
 Lighting.GlobalShadows = true
 
 local bloom = Instance.new("BloomEffect")
-bloom.Intensity = 0.7
+bloom.Intensity = 0.3 -- léger : le pastel ne doit pas éblouir
 bloom.Size = 28
-bloom.Threshold = 1.4
+bloom.Threshold = 2
 bloom.Parent = Lighting
 
 local cc = Instance.new("ColorCorrectionEffect")
 cc.Name = "PopaintColor"
-cc.Saturation = 0.3
-cc.Contrast = 0.06
-cc.Brightness = 0.03
+cc.Saturation = -0.05 -- ton pastel (la Rainbow Storm la remonte, voir src/Client/World.luau)
+cc.Contrast = -0.02
+cc.Brightness = 0.04
 cc.TintColor = rgb(255, 248, 255)
 cc.Parent = Lighting
 
 local atmo = Instance.new("Atmosphere")
 atmo.Density = 0.32
 atmo.Offset = 0.22
-atmo.Color = rgb(255, 210, 240)
-atmo.Decay = rgb(170, 140, 255)
-atmo.Glare = 0.3
-atmo.Haze = 2.2
+atmo.Color = rgb(250, 232, 246)
+atmo.Decay = rgb(206, 196, 250)
+atmo.Glare = 0.15
+atmo.Haze = 1.8
 atmo.Parent = Lighting
 
 ---------------------------------------------------------------- export

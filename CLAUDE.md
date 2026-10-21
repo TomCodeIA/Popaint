@@ -46,6 +46,13 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 - **Quêtes** : `Content/Quests.luau` ; types disponibles listés en tête du fichier. Un nouveau type
   demande du code dans `src/Server/QuestService.luau` + la liste `KNOWN_QUEST_TYPES` des tests.
 - **Cosmétiques** : `Content/Cosmetics.luau`.
+- **Apparence d'un compagnon** : champ `Look` (Body, Extras, Accent) dans `Content/Companions.luau` ;
+  formes et accessoires dans `src/Shared/CompanionModels.luau` (listes vérifiées par les tests).
+- **Style** : pastel (`lib.P` dans `tools/map/lib.luau`, couleurs de `Ui.luau`) ; le vif est réservé aux
+  récompenses. Les petites pièces vont dans `lib.details(m)` (affichées seulement de près) et les
+  animations se posent avec `lib.anim` (Spin, Bob, Pulse, Wobble, Sway, Drift, Swim, Blink).
+- **Vérifier un modèle sans Studio** : `tools/preview.sh props|companions|base|centerpieces` → image
+  dans `build/preview/` (à regarder, et à envoyer à Tom).
 - **Équilibrage** : `src/Shared/Config.luau`.
 
 ## Règles à ne jamais casser (sinon perte de progression des joueurs)

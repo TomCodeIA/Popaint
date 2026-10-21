@@ -101,6 +101,188 @@ function world.build(Workspace, content)
 end
 
 ---------------------------------------------------------------- hub
+---------------------------------------------------------------- une base de joueur (socle, machine, tapis)
+-- Les noms Pad, MachineBody (avec ShopPrompt), MachineBubble, Sign/OwnerLabel et les pièces du tapis
+-- (Frame, Belt, Stripe1-6, Rail, Post, Console/Screen) sont utilisés par les scripts : ne pas les renommer.
+-- Les petites pièces vont dans des modèles "Details" (affichés seulement de près).
+local P = lib.P
+local tint = lib.tint
+
+local function gear(parent, cf, diameter, color, speed)
+	local g = lib.model("Gear", parent, "Atomic")
+	local d = diameter
+	local disk = lib.deco({ Name = "Disk", Shape = E.PartType.Cylinder, Size = V3.new(0.5, d, d), CFrame = cf, Color = color,
+		Material = M.SmoothPlastic, Parent = g })
+	g.PrimaryPart = disk
+	lib.deco({ Name = "Hub", Shape = E.PartType.Cylinder, Size = V3.new(0.7, d * 0.35, d * 0.35), CFrame = cf, Color = P.white,
+		Material = M.SmoothPlastic, Parent = g })
+	for k = 1, 8 do
+		local a = k / 8 * math.pi * 2
+		lib.deco({ Name = "Tooth", Size = V3.new(0.5, d * 0.18, d * 0.18), CFrame = cf * CF.Angles(a, 0, 0) * CF.new(0, d / 2, 0),
+			Color = color, Material = M.SmoothPlastic, Parent = g })
+	end
+	lib.anim(g, "Spin", { SpinSpeed = speed, SpinAxis = "X", AnimRange = 160 })
+	return g
+end
+
+local function buildBase(base, facing, padColor, accent, n)
+	local d = lib.details(base)
+	local rng = lib.rng(n * 101)
+	-- bordure du socle : petites dalles alternées + boules aux coins
+	for k = -5, 5 do
+		for _, side in { { 0, 1 }, { 1, 0 }, { -1, 0 } } do
+			local x = if side[1] == 0 then k * 2 else side[1] * 11.2
+			local z = if side[1] == 0 then side[2] * 11.2 else k * 2
+			lib.block(d, "Trim", facing * CF.new(x, 0.75, z), V3.new(if side[1] == 0 then 1.8 else 0.6, 0.3, if side[1] == 0 then 0.6 else 1.8),
+				if k % 2 == 0 then P.white else tint(accent, 0.2), M.SmoothPlastic)
+		end
+	end
+	for _, c in { { -1, -1 }, { 1, -1 }, { -1, 1 }, { 1, 1 } } do
+		lib.ball(base, "Corner", (facing * CF.new(c[1] * 11.2, 1.3, c[2] * 11.2)).Position, 1.6, accent)
+	end
+	-- clôture en sucre d'orge derrière la base (poteaux + 2 lisses)
+	for k = -4, 4 do
+		local post = facing * CF.new(k * 2.5, 1.6, 10.5)
+		lib.cyl(base, "Fence", post.Position, 2.6, 0.7, if k % 2 == 0 then P.white else P.pink)
+		lib.ball(d, "FenceCap", (post * CF.new(0, 1.5, 0)).Position, 0.9, lib.CANDY[(k + 5) % #lib.CANDY + 1])
+	end
+	for _, y in { 1.2, 2.3 } do
+		lib.block(d, "FenceRail", facing * CF.new(0, y, 10.5), V3.new(20.5, 0.3, 0.25), P.white, M.SmoothPlastic)
+	end
+	-- pots de fleurs devant
+	for _, x in { -9.5, 9.5 } do
+		local pot = facing * CF.new(x, 1.3, -9.5)
+		lib.cyl(base, "Pot", pot.Position, 1.6, 2, P.peach)
+		lib.cyl(d, "PotRim", (pot * CF.new(0, 0.85, 0)).Position, 0.3, 2.3, tint(P.peach, 0.3))
+		for k = 1, 3 do
+			local a = k / 3 * math.pi * 2
+			lib.ball(d, "Bloom", (pot * CF.new(math.cos(a) * 0.5, 1.5 + k * 0.1, math.sin(a) * 0.5)).Position, 0.9, lib.pick(rng, lib.CANDY))
+		end
+	end
+	-- paillasson « welcome »
+	lib.block(d, "Mat", facing * CF.new(0, 0.62, -9), V3.new(6, 0.06, 2.4), tint(accent, 0.3), M.Fabric, { TopSurface = E.SurfaceType.Smooth })
+
+	-- MACHINE À BULLES
+	local body = lib.part({ Name = "MachineBody", Size = V3.new(6, 6, 6), CFrame = facing * CF.new(0, 3.6, 4),
+		Color = accent, TopSurface = E.SurfaceType.Studs, Parent = base })
+	lib.prompt(body, "ShopPrompt", "Upgrade", "Bubble Machine", 14)
+	local mc = facing * CF.new(0, 3.6, 4)
+	-- arêtes arrondies (pied, bandes blanches)
+	lib.block(base, "MachineFoot", mc * CF.new(0, -2.8, 0), V3.new(6.8, 0.8, 6.8), P.white, M.SmoothPlastic)
+	lib.block(d, "MachineBand", mc * CF.new(0, 1.8, 0), V3.new(6.2, 0.5, 6.2), P.white, M.SmoothPlastic, { TopSurface = E.SurfaceType.Smooth })
+	for _, cx in { -1, 1 } do
+		for _, cz in { -1, 1 } do
+			lib.cyl(d, "Edge", (mc * CF.new(cx * 3, 0, cz * 3)).Position, 6, 0.8, tint(accent, 0.35))
+		end
+	end
+	-- façade (vers la fontaine : -Z) : hublot, cadran, boutons, levier
+	local front = mc * CF.new(0, 0, -3.05)
+	lib.cyl(d, "Porthole", front.Position + V3.new(0, 0.6, 0), 0.3, 3.2, P.white, M.SmoothPlastic, { CFrame = front * CF.new(0, 0.6, 0) * CF.Angles(0, math.rad(90), 0) })
+	lib.cyl(d, "PortholeGlass", front.Position, 0.35, 2.5, P.sky, M.Glass,
+		{ CFrame = front * CF.new(0, 0.6, -0.05) * CF.Angles(0, math.rad(90), 0), Transparency = 0.2 })
+	for k = 1, 4 do
+		lib.ball(d, "InnerBubble", (front * CF.new(rng(-0.7, 0.7), 0.6 + rng(-0.7, 0.7), 0.3)).Position, rng(0.4, 0.8), P.white, M.Glass, { Transparency = 0.3 })
+	end
+	for k, c in { P.coral, P.butter, P.mint } do
+		lib.cyl(d, "Button", (front * CF.new(-1.6 + (k - 1) * 1.6, -1.6, -0.1)).Position, 0.3, 0.8, c, M.SmoothPlastic,
+			{ CFrame = front * CF.new(-1.6 + (k - 1) * 1.6, -1.6, -0.1) * CF.Angles(0, math.rad(90), 0) })
+	end
+	-- cadran sur le côté avec aiguille
+	local dial = mc * CF.new(3.05, 0.8, 0)
+	lib.cyl(d, "Dial", dial.Position, 0.2, 2.2, P.white, M.SmoothPlastic, { CFrame = dial })
+	lib.block(d, "Needle", dial * CF.new(0.12, 0.35, 0) * CF.Angles(0.5, 0, 0), V3.new(0.08, 0.9, 0.12), P.coral, M.SmoothPlastic)
+	-- engrenages qui tournent sur l'autre côté
+	gear(base, mc * CF.new(-3.25, 0.9, -0.9), 2.6, P.butter, 60)
+	gear(base, mc * CF.new(-3.25, -0.9, 1.1), 1.8, P.lavender, -85)
+	-- levier
+	lib.cyl(d, "LeverBase", (mc * CF.new(3.2, -1.4, 1.8)).Position, 0.3, 0.8, P.white, M.SmoothPlastic, { CFrame = mc * CF.new(3.2, -1.4, 1.8) })
+	lib.block(d, "Lever", mc * CF.new(3.5, -0.7, 1.8) * CF.Angles(0, 0, -0.4), V3.new(0.2, 1.4, 0.2), P.white, M.SmoothPlastic)
+	lib.ball(d, "LeverKnob", (mc * CF.new(3.8, 0, 1.8)).Position, 0.6, P.coral)
+	-- lumières qui clignotent sur le dessus
+	local lights = lib.model("MachineLights", base, "Atomic")
+	for k, c in { { -2.4, -2.4 }, { 2.4, -2.4 }, { -2.4, 2.4 }, { 2.4, 2.4 } } do
+		local bulb = lib.ball(lights, "Bulb", (mc * CF.new(c[1], 3.3, c[2])).Position, 0.8, lib.CANDY[k], M.Neon)
+		lib.light(bulb, lib.CANDY[k], 6, 0.6)
+	end
+	lib.anim(lights, "Blink", { BlinkSpeed = 3 + n * 0.1, AnimRange = 160 })
+	-- tuyau et entonnoir qui soufflent la bulle
+	lib.part({ Name = "MachineTube", Shape = E.PartType.Cylinder, Size = V3.new(4, 2, 2),
+		CFrame = facing * CF.new(0, 8.6, 4) * CF.Angles(0, 0, math.rad(90)), Color = P.white, Material = M.SmoothPlastic, Parent = base })
+	for _, y in { 7.4, 9.6 } do
+		lib.cyl(d, "TubeRing", (facing * CF.new(0, y, 4)).Position, 0.4, 2.4, accent)
+	end
+	lib.cyl(base, "Funnel", (facing * CF.new(0, 10.8, 4)).Position, 0.8, 3.4, tint(accent, 0.3))
+	local mb = lib.part({ Name = "MachineBubble", Shape = E.PartType.Ball, Size = V3.new(4.5, 4.5, 4.5), CFrame = facing * CF.new(0, 12.9, 4),
+		Color = padColor, Material = M.ForceField, CanCollide = false, Parent = base })
+	lib.anim(mb, "Bob", { BobAmp = 0.6, BobSpeed = 2 })
+	-- petites bulles qui s'échappent
+	for k = 1, 3 do
+		local bub = lib.ball(base, "FreeBubble", (facing * CF.new(rng(-2, 2), 15 + k * 1.6, 4 + rng(-1.5, 1.5))).Position, 0.6 + k * 0.25,
+			lib.CANDY[k + n % 4], M.Glass, { Transparency = 0.35 })
+		lib.anim(bub, "Bob,Drift", { BobAmp = 0.8 + k * 0.3, BobSpeed = 1 + k * 0.4, DriftAmp = 0.8, DriftSpeed = 0.6, AnimRange = 160 })
+	end
+
+	-- TAPIS DE COURSE (son apparence change avec son niveau, voir src/Server/TrainService.luau)
+	local tm = lib.Instance.new("Model")
+	tm.Name = "Treadmill"
+	tm.Parent = base
+	local td = lib.details(tm)
+	local frame = lib.part({ Name = "Frame", Size = V3.new(5.5, 1, 12), CFrame = facing * CF.new(-7, 1.1, -2), Color = rgb(170, 166, 186),
+		TopSurface = E.SurfaceType.Studs, Parent = tm })
+	tm.PrimaryPart = frame
+	lib.part({ Name = "Belt", Size = V3.new(4.2, 0.3, 11.2), CFrame = facing * CF.new(-7, 1.75, -2), Color = rgb(96, 88, 116),
+		Material = M.SmoothPlastic, Parent = tm })
+	for k = 1, 6 do
+		lib.part({ Name = "Stripe" .. k, Size = V3.new(4.2, 0.05, 0.4), CFrame = facing * CF.new(-7, 1.93, -2 - 5.6 + (k - 0.5) * (11.2 / 6)),
+			Color = rgb(150, 140, 176), Material = M.SmoothPlastic, CanCollide = false, CanQuery = false, Parent = tm })
+	end
+	-- rouleaux aux deux bouts, bandes latérales et petits pieds
+	for _, z in { -7.6, 3.6 } do
+		lib.deco({ Name = "Roller", Shape = E.PartType.Cylinder, Size = V3.new(5.2, 1.1, 1.1), CFrame = facing * CF.new(-7, 1.4, z),
+			Color = P.white, Material = M.SmoothPlastic, Parent = td })
+	end
+	for _, sx in { -1, 1 } do
+		lib.block(td, "SideStrip", facing * CF.new(-7 + sx * 2.45, 1.7, -2), V3.new(0.4, 0.25, 11.6), accent, M.SmoothPlastic)
+		for _, z in { -7, 3 } do
+			lib.ball(td, "Foot", (facing * CF.new(-7 + sx * 2.4, 0.65, z)).Position, 0.8, P.white)
+		end
+		lib.part({ Name = "Rail", Size = V3.new(0.4, 0.4, 11), CFrame = facing * CF.new(-7 + sx * 2.6, 3.6, -2), Color = rgb(220, 216, 232),
+			Material = M.SmoothPlastic, CanCollide = false, Parent = tm })
+		lib.part({ Name = "Post", Size = V3.new(0.4, 2.2, 0.4), CFrame = facing * CF.new(-7 + sx * 2.6, 2.5, -7.3), Color = rgb(170, 166, 186),
+			Parent = tm })
+		lib.ball(td, "Grip", (facing * CF.new(-7 + sx * 2.6, 3.6, 3.4)).Position, 0.7, P.coral)
+	end
+	local console = lib.part({ Name = "Console", Size = V3.new(5.5, 3, 0.8), CFrame = facing * CF.new(-7, 4.2, -8), Color = rgb(120, 112, 150),
+		Parent = tm })
+	for _, face in { E.NormalId.Back, E.NormalId.Front } do
+		local t = lib.surfaceText(console, face, "RUN!", rgb(170, 250, 196))
+		t.Name = "Screen"
+		t.TextStrokeTransparency = 1
+	end
+	lib.block(td, "ConsoleTop", facing * CF.new(-7, 5.85, -8), V3.new(5.9, 0.3, 1.2), P.white, M.SmoothPlastic, { TopSurface = E.SurfaceType.Smooth })
+	for k, c in { P.mint, P.butter, P.coral } do
+		lib.ball(td, "ConsoleButton", (facing * CF.new(-8.6 + k * 0.8, 3, -7.55)).Position, 0.45, c)
+	end
+	lib.cyl(td, "Bottle", (facing * CF.new(-4.5, 4.6, -8)).Position, 1.2, 0.6, P.sky)
+	lib.ball(td, "BottleCap", (facing * CF.new(-4.5, 5.3, -8)).Position, 0.45, P.white)
+	-- ventilateur qui tourne au-dessus de la console
+	local fan = lib.model("Fan", tm, "Atomic")
+	local fc = facing * CF.new(-7, 6.6, -8) * CF.Angles(0, math.rad(90), 0)
+	local hub = lib.deco({ Name = "FanHub", Shape = E.PartType.Cylinder, Size = V3.new(0.4, 0.6, 0.6), CFrame = fc, Color = P.white, Parent = fan })
+	fan.PrimaryPart = hub
+	for k = 1, 4 do
+		lib.blob(fan, "Blade", fc * CF.Angles(k * math.pi / 2, 0, 0) * CF.new(0, 0.6, 0), V3.new(0.1, 1, 0.45), lib.CANDY[k])
+	end
+	lib.anim(fan, "Spin", { SpinSpeed = 240, SpinAxis = "X", AnimRange = 160 })
+	-- fanion de la base qui se balance
+	local flag = lib.model("BaseFlag", base, "Atomic")
+	local pole = lib.cyl(flag, "Pole", (facing * CF.new(9.8, 4, 9.5)).Position, 8, 0.3, P.white)
+	flag.PrimaryPart = pole
+	lib.ball(flag, "PoleTop", (facing * CF.new(9.8, 8.2, 9.5)).Position, 0.6, P.butter)
+	lib.block(flag, "Flag", facing * CF.new(8.4, 7, 9.5), V3.new(2.6, 1.6, 0.1), accent, M.Fabric, { TopSurface = E.SurfaceType.Smooth })
+	lib.anim(flag, "Sway", { SwayAmp = 3, SwaySpeed = 1.6, AnimRange = 160 })
+end
+
 function world.hub(hub, plan, ctx)
 	lib.part({ Name = "HubFloor", Size = V3.new(HUB, 1, HUB), CFrame = CF.new(0, -0.5, 0), Color = rgb(214, 196, 255),
 		TopSurface = E.SurfaceType.Studs, Parent = hub })
@@ -150,12 +332,12 @@ function world.hub(hub, plan, ctx)
 			local d = sign * (20 + k * 12)
 			lib.deco({ Name = "Dot", Shape = E.PartType.Cylinder, Size = V3.new(0.2, 3, 3),
 				CFrame = (if horizontal then CF.new(d, 0.12, 0) else CF.new(0, 0.12, d)) * CF.Angles(0, 0, math.rad(90)),
-				Color = lib.CANDY[k % 5 + 1], Material = M.Neon, Parent = hub })
+				Color = lib.CANDY[k % 5 + 1], Material = M.SmoothPlastic, Parent = hub })
 		end
 	end
 
 	local spawn = lib.part({ Class = "SpawnLocation", Name = "Spawn", Size = V3.new(14, 1, 14), CFrame = CF.new(0, 0.5, 24),
-		Color = rgb(255, 92, 168), Material = M.Neon, Parent = hub })
+		Color = P.pink, Material = M.SmoothPlastic, Parent = hub })
 	spawn.Neutral = true
 	spawn.Duration = 0
 
@@ -164,13 +346,13 @@ function world.hub(hub, plan, ctx)
 		local size = 18 - (i - 1) * 3.2
 		lib.part({ Name = "Fountain" .. i, Shape = E.PartType.Cylinder, Size = V3.new(1.2, size, size),
 			CFrame = CF.new(0, 0.6 + (i - 1) * 1.2, 0) * CF.Angles(0, 0, math.rad(90)), Color = c,
-			Material = if i % 2 == 0 then M.Neon else M.SmoothPlastic, Parent = hub })
+			Material = M.SmoothPlastic, Parent = hub })
 	end
 	local fountainBubble = lib.ball(hub, "FountainBubble", V3.new(0, 10, 0), 7, rgb(255, 170, 230), M.ForceField)
 	lib.anim(fountainBubble, "Bob", { BobAmp = 1, BobSpeed = 1.5 })
 	for k = 1, 6 do
 		local a = k / 6 * math.pi * 2
-		local jet = lib.ball(hub, "Jet", V3.new(math.cos(a) * 5, 7.5, math.sin(a) * 5), 1.6, lib.RAINBOW[(k % 5) + 1], M.Neon)
+		local jet = lib.ball(hub, "Jet", V3.new(math.cos(a) * 5, 7.5, math.sin(a) * 5), 1.6, lib.RAINBOW[(k % 5) + 1], M.Glass, { Transparency = 0.2 })
 		lib.anim(jet, "Bob", { BobAmp = 0.8, BobSpeed = 3 + k * 0.2 })
 	end
 	local _, title = lib.billboard(fountainBubble, UDim2.fromScale(26, 7), 8, "POPAINT", rgb(255, 240, 120), 250)
@@ -193,45 +375,8 @@ function world.hub(hub, plan, ctx)
 		local pad = lib.part({ Name = "Pad", Size = V3.new(22, 0.6, 22), CFrame = facing + V3.new(0, 0.3, 0), Color = padColors[n],
 			TopSurface = E.SurfaceType.Studs, Parent = base })
 		base.PrimaryPart = pad
-		-- petite clôture de bonbons derrière la base
-		for k = -4, 4 do
-			lib.ball(base, "Fence", (facing * CF.new(k * 2.5, 1.2, 10.5)).Position, 1.6, lib.CANDY[(k + 5) % 5 + 1])
-		end
-		local body = lib.part({ Name = "MachineBody", Size = V3.new(6, 6, 6), CFrame = facing * CF.new(0, 3.6, 4),
-			Color = lib.RAINBOW[(n - 1) % #lib.RAINBOW + 1], TopSurface = E.SurfaceType.Studs, Parent = base })
-		lib.prompt(body, "ShopPrompt", "Upgrade", "Bubble Machine", 14)
-		lib.part({ Name = "MachineTube", Shape = E.PartType.Cylinder, Size = V3.new(4, 2, 2),
-			CFrame = facing * CF.new(0, 8.6, 4) * CF.Angles(0, 0, math.rad(90)), Color = rgb(255, 255, 255), Material = M.SmoothPlastic,
-			Parent = base })
-		local mb = lib.part({ Name = "MachineBubble", Shape = E.PartType.Ball, Size = V3.new(4.5, 4.5, 4.5), CFrame = facing * CF.new(0, 12.5, 4),
-			Color = padColors[n], Material = M.ForceField, CanCollide = false, Parent = base })
-		lib.anim(mb, "Bob", { BobAmp = 0.6, BobSpeed = 2 })
-		-- Tapis de course (son apparence change avec son niveau, voir src/Server/TrainService.luau)
-		local tm = lib.Instance.new("Model")
-		tm.Name = "Treadmill"
-		tm.Parent = base
-		local frame = lib.part({ Name = "Frame", Size = V3.new(5.5, 1, 12), CFrame = facing * CF.new(-7, 1.1, -2), Color = rgb(120, 120, 135),
-			TopSurface = E.SurfaceType.Studs, Parent = tm })
-		tm.PrimaryPart = frame
-		lib.part({ Name = "Belt", Size = V3.new(4.2, 0.3, 11.2), CFrame = facing * CF.new(-7, 1.75, -2), Color = rgb(45, 40, 60),
-			Material = M.SmoothPlastic, Parent = tm })
-		for k = 1, 6 do
-			lib.part({ Name = "Stripe" .. k, Size = V3.new(4.2, 0.05, 0.4), CFrame = facing * CF.new(-7, 1.93, -2 - 5.6 + (k - 0.5) * (11.2 / 6)),
-				Color = rgb(90, 85, 110), Material = M.SmoothPlastic, CanCollide = false, CanQuery = false, Parent = tm })
-		end
-		for _, sx in { -1, 1 } do
-			lib.part({ Name = "Rail", Size = V3.new(0.4, 0.4, 11), CFrame = facing * CF.new(-7 + sx * 2.6, 3.6, -2), Color = rgb(200, 200, 215),
-				Material = M.Neon, CanCollide = false, Parent = tm })
-			lib.part({ Name = "Post", Size = V3.new(0.4, 2.2, 0.4), CFrame = facing * CF.new(-7 + sx * 2.6, 2.5, -7.3), Color = rgb(200, 200, 215),
-				Parent = tm })
-		end
-		local console = lib.part({ Name = "Console", Size = V3.new(5.5, 3, 0.8), CFrame = facing * CF.new(-7, 4.2, -8), Color = rgb(60, 55, 85),
-			Parent = tm })
-		for _, face in { E.NormalId.Back, E.NormalId.Front } do
-			local t = lib.surfaceText(console, face, "RUN!", rgb(120, 255, 160))
-			t.Name = "Screen"
-			t.TextStrokeTransparency = 1
-		end
+		local accent = lib.RAINBOW[(n - 1) % #lib.RAINBOW + 1]
+		buildBase(base, facing, padColors[n], accent, n)
 		local sign = lib.part({ Name = "Sign", Size = V3.new(1, 1, 1), CFrame = facing * CF.new(0, 17, 4), Transparency = 1, CanCollide = false,
 			CanQuery = false, Parent = base })
 		local _, label = lib.billboard(sign, UDim2.fromScale(12, 3), 0, "Free base", rgb(255, 255, 255), 140)
@@ -292,7 +437,7 @@ function world.zone(info, zonesFolder, gatesModel, hub, decor, ctx)
 					Name = "T",
 					Size = V3.new(TILE, h + 8, TILE),
 					CFrame = CF.new(info.MinX + (i - 0.5) * TILE, (h - 8) / 2, info.MinZ + (j - 0.5) * TILE),
-					Color = rgb(150, 150, 158),
+					Color = rgb(176, 172, 186),
 					TopSurface = E.SurfaceType.Studs,
 					BottomSurface = E.SurfaceType.Inlet,
 					Parent = tiles,
@@ -464,7 +609,7 @@ local function studMountain(theme, x, z, baseSize, layers, rng, parent)
 	-- petites cascades de bonbons / neige sur les flancs
 	if rng() < 0.5 then
 		lib.block(m, "Drip", CF.new(x, (lib.WATER + y) / 2 - 2, z) * rot * CF.new(0, 0, baseSize * 0.42), V3.new(2, math.max(4, y - lib.WATER - 6), 1),
-			theme.Cap, M.Neon, { Transparency = 0.3 })
+			theme.Cap, M.Glass, { Transparency = 0.3 })
 	end
 	lib.primary(m)
 	return m
@@ -541,7 +686,7 @@ function world.surroundings(info, keepOut, reliefFolder, terrainPlan, decor, kee
 		local r = rng(6, 13)
 		local x, z = ring(ZONE / 2 + 26, ZONE / 2 + 160)
 		if keepOut:free(x, z, r + 3) then
-			local isle, top = props.Islet(decor, V3.new(x, 0, z), r, theme.Islet)
+			local isle, top = props.Islet(decor, V3.new(x, 0, z), r, theme.Islet, rng)
 			local n = math.floor(rng(1, 4.99))
 			for k = 1, n do
 				local a = rng(0, math.pi * 2)

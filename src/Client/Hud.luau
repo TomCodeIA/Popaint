@@ -323,7 +323,17 @@ function Hud.coinsGained(amount: number, worldPos: Vector3?)
 		TweenService:Create(coin, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Position = UDim2.fromOffset(target.X / s, target.Y / s),
 			Size = UDim2.fromOffset(18, 18),
+			Rotation = 360,
 		}):Play()
+		-- reflet de la pièce (elle brille en volant)
+		local shine = Ui.frame(coin, {
+			Position = UDim2.fromScale(0.2, 0.15),
+			Size = UDim2.fromScale(0.3, 0.3),
+			BackgroundColor3 = Ui.White,
+			BackgroundTransparency = 0.2,
+			ZIndex = 31,
+		})
+		Ui.corner(shine, UDim.new(1, 0))
 		task.delay(duration, function()
 			coin:Destroy()
 		end)

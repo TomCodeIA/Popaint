@@ -14,6 +14,7 @@ local Ui = require(script.Parent:WaitForChild("Ui")) :: any
 local State = require(script.Parent:WaitForChild("State")) :: any
 local Hud = require(script.Parent:WaitForChild("Hud")) :: any
 local Effects = require(script.Parent:WaitForChild("Effects")) :: any
+local CompanionModels = require(Shared:WaitForChild("CompanionModels")) :: any
 
 local Pets = {}
 
@@ -36,43 +37,64 @@ local function rarityColor(rarity: string): Color3
 	return Ui.White
 end
 
--- Petite tête de compagnon en interface (rond coloré + yeux)
-local function icon(parent: Instance, id: string, tier: number, size: number): Frame
+-- Modèle 3D d'un compagnon (voir src/Shared/CompanionModels.luau)
+local function buildModel(id: string, tier: number): Model?
 	local def = Config.Companions[id]
+	if not def then
+		return nil
+	end
+	return CompanionModels.build(def.Row or def, tier)
+end
+
+-- Compagnon en 3D dans l'interface (fenêtre ronde). spin = true : il tourne doucement
+local spinning: { [Model]: { Base: CFrame, Phase: number } } = {}
+local function icon(parent: Instance, id: string, tier: number, size: number, spin: boolean?): Frame
 	local body = Ui.frame(parent, {
 		Size = UDim2.fromOffset(size, size),
-		BackgroundColor3 = if def then def.Color else Ui.White,
+		BackgroundColor3 = Color3.fromRGB(255, 250, 252),
 		ZIndex = 13,
 	})
 	Ui.corner(body, UDim.new(1, 0))
-	Ui.stroke(body, 3, if tier == 1 then Color3.fromRGB(255, 200, 40) elseif tier == 2 then Ui.Pink else Ui.Ink)
-	for _, x in { 0.32, 0.68 } do
-		local eye = Ui.frame(body, {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(x, 0.45),
-			Size = UDim2.fromScale(0.16, 0.22),
-			BackgroundColor3 = Ui.Ink,
-			ZIndex = 14,
-		})
-		Ui.corner(eye, UDim.new(1, 0))
-	end
-	local shine = Ui.frame(body, {
-		Position = UDim2.fromScale(0.18, 0.12),
-		Size = UDim2.fromScale(0.22, 0.14),
-		BackgroundColor3 = Ui.White,
-		BackgroundTransparency = 0.3,
-		ZIndex = 14,
-	})
-	Ui.corner(shine, UDim.new(1, 0))
+	Ui.stroke(body, 3, if tier == 1 then Color3.fromRGB(255, 200, 70) elseif tier == 2 then Ui.Pink else Ui.Ink)
 	if tier == 2 then
 		local g = Instance.new("UIGradient")
 		g.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, RAINBOW[1]),
-			ColorSequenceKeypoint.new(0.5, RAINBOW[3]),
-			ColorSequenceKeypoint.new(1, RAINBOW[2]),
+			ColorSequenceKeypoint.new(0, Ui.lighten(RAINBOW[1], 0.5)),
+			ColorSequenceKeypoint.new(0.5, Ui.lighten(RAINBOW[4], 0.5)),
+			ColorSequenceKeypoint.new(1, Ui.lighten(RAINBOW[2], 0.5)),
 		})
 		g.Parent = body
 	end
+	local vp = Instance.new("ViewportFrame")
+	vp.Size = UDim2.fromScale(1, 1)
+	vp.BackgroundTransparency = 1
+	vp.Ambient = Color3.fromRGB(200, 196, 210)
+	vp.LightColor = Color3.fromRGB(255, 255, 255)
+	vp.LightDirection = Vector3.new(-0.4, -1, 0.6)
+	vp.ZIndex = 14
+	vp.Parent = body
+	local model = buildModel(id, tier)
+	if model then
+		for _, d in model:GetDescendants() do
+			if d:IsA("ParticleEmitter") then
+				d:Destroy()
+			end
+		end
+		local base = CFrame.Angles(0, math.rad(-20), 0)
+		model:PivotTo(base)
+		model.Parent = vp
+		if spin then
+			spinning[model] = { Base = base, Phase = math.random() * 6 }
+			model.Destroying:Connect(function()
+				spinning[model] = nil
+			end)
+		end
+	end
+	local cam = Instance.new("Camera")
+	cam.FieldOfView = 38
+	cam.CFrame = CFrame.lookAt(Vector3.new(0, 0.9, -7.4), Vector3.new(0, 0.2, 0))
+	cam.Parent = vp
+	vp.CurrentCamera = cam
 	return body
 end
 Pets.icon = icon
@@ -127,7 +149,7 @@ local function refreshDetail(state: any)
 		return
 	end
 	local def = Config.Companions[c.Id]
-	local ic = icon(detail, c.Id, c.Tier, 110)
+	local ic = icon(detail, c.Id, c.Tier, 110, true)
 	ic.AnchorPoint = Vector2.new(0.5, 0)
 	ic.Position = UDim2.new(0.5, 0, 0, 12)
 	local name = def.Name .. (if c.Tier > 0 then " (" .. t("Tier_" .. c.Tier) .. ")" else "")
@@ -270,7 +292,7 @@ local function hatch(data: any)
 		ZIndex = 61,
 	})
 	Ui.corner(rays, UDim.new(1, 0))
-	local ic = icon(overlay, data.Id, 0, 190)
+	local ic = icon(overlay, data.Id, 0, 220, true)
 	ic.AnchorPoint = Vector2.new(0.5, 0.5)
 	ic.Position = UDim2.fromScale(0.5, 0.45)
 	ic.ZIndex = 62
@@ -300,48 +322,48 @@ local function hatch(data: any)
 end
 
 ---------------------------------------------------------------- compagnons qui suivent (tous les joueurs)
-type Follower = { Body: Part, Eyes: { Part }, Tier: number, Pos: Vector3 }
+type Piece = { Part: BasePart, Rel: CFrame, Kind: string?, Side: number, Size: Vector3, Color: Color3 }
+type Follower = { Model: Model, Pieces: { Piece }, Tier: number, Pos: Vector3, Phase: number, NextBlink: number, Last: Vector3 }
 local followers: { [Player]: { Follower } } = {}
 local followFolder = Instance.new("Folder")
 followFolder.Name = "Companions"
 
-local function makeFollower(id: string, tier: number, at: Vector3): Follower
-	local def = Config.Companions[id]
-	local body = Instance.new("Part")
-	body.Shape = Enum.PartType.Ball
-	body.Size = Vector3.new(2, 2, 2)
-	body.Anchored = true
-	body.CanCollide = false
-	body.CanQuery = false
-	body.CanTouch = false
-	body.Material = if tier == 1 then Enum.Material.Neon else Enum.Material.SmoothPlastic
-	body.Color = if tier == 1 then Color3.fromRGB(255, 210, 60) elseif def then def.Color else Ui.White
-	body.CFrame = CFrame.new(at)
-	body.Parent = followFolder
-	local eyes = {}
-	for _ = 1, 2 do
-		local e = Instance.new("Part")
-		e.Shape = Enum.PartType.Ball
-		e.Size = Vector3.new(0.38, 0.5, 0.38)
-		e.Anchored = true
-		e.CanCollide = false
-		e.CanQuery = false
-		e.CanTouch = false
-		e.Color = Color3.fromRGB(30, 20, 45)
-		e.Parent = followFolder
-		table.insert(eyes, e)
+-- Quelles pièces bougent, et comment (ailes qui battent, oreilles qui frétillent, queue qui remue, yeux qui clignent)
+local KIND = {
+	Wing = "Flap", Feather = "Flap", WingTip = "Flap",
+	Ear = "Wiggle", EarIn = "Wiggle", Stalk = "Wiggle", Tip = "Wiggle",
+	Tail = "Wag", TailFin = "Wag",
+	Eye = "Blink", Shine = "Blink",
+	Flame = "Flicker", Halo = "Halo", Bulb = "Glow",
+}
+
+local function makeFollower(id: string, tier: number, at: Vector3): Follower?
+	local model = buildModel(id, tier)
+	if not model then
+		return nil
 	end
-	return { Body = body, Eyes = eyes, Tier = tier, Pos = at }
+	local pieces = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			local p = d :: BasePart
+			local rel = p.CFrame
+			table.insert(pieces, {
+				Part = p, Rel = rel, Kind = KIND[p.Name] or (if p:GetAttribute("Main") then "Main" else nil),
+				Side = if rel.Position.X < -0.05 then -1 elseif rel.Position.X > 0.05 then 1 else 0,
+				Size = p.Size, Color = p.Color,
+			})
+		end
+	end
+	model:PivotTo(CFrame.new(at))
+	model.Parent = followFolder
+	return { Model = model, Pieces = pieces, Tier = tier, Pos = at, Phase = math.random() * 6, NextBlink = os.clock() + math.random() * 3, Last = at }
 end
 
 local function clearFollowers(p: Player)
 	local list = followers[p]
 	if list then
 		for _, f in list do
-			f.Body:Destroy()
-			for _, e in f.Eyes do
-				e:Destroy()
-			end
+			f.Model:Destroy()
 		end
 	end
 	followers[p] = nil
@@ -360,10 +382,60 @@ local function rebuildFollowers(p: Player)
 	for entry in string.gmatch(attr, "[^,]+") do
 		local id, tierText = string.match(entry, "^([^:]+):(%d+)$")
 		if id and Config.Companions[id] then
-			table.insert(list, makeFollower(id, tonumber(tierText) or 0, at))
+			local f = makeFollower(id, tonumber(tierText) or 0, at)
+			if f then
+				table.insert(list, f)
+			end
 		end
 	end
 	followers[p] = list
+end
+
+-- Anime un compagnon : sautille en marchant, flotte à l'arrêt, cligne des yeux, bat des ailes…
+local NEAR = 120 -- au-delà, on ne déplace que le modèle entier (économie pour les téléphones)
+local function animate(f: Follower, look: CFrame, now: number, speed: number, near: boolean)
+	local t = now + f.Phase
+	local moving = math.clamp(speed / 14, 0, 1)
+	local hop = math.abs(math.sin(t * 9)) * 0.7 * moving + math.sin(t * 2.2) * 0.18 * (1 - moving)
+	local lean = CFrame.Angles(-0.25 * moving, 0, math.sin(t * 9) * 0.08 * moving)
+	local cf = look * CFrame.new(0, hop, 0) * lean
+	if not near then
+		f.Model:PivotTo(cf)
+		return
+	end
+	-- petit écrasement quand il retombe (« squash & stretch »)
+	local squash = 1 - (1 - math.abs(math.sin(t * 9))) * 0.12 * moving
+	local blink = now >= f.NextBlink
+	if now >= f.NextBlink + 0.14 then
+		f.NextBlink = now + 2 + math.random() * 3
+	end
+	local flap = math.sin(t * (if moving > 0.3 then 22 else 10)) * 0.45
+	for _, pc in f.Pieces do
+		local rel = pc.Rel
+		local rx, ry, rz = rel.Position.X, rel.Position.Y, rel.Position.Z
+		local relSq = CFrame.new(rx * (2 - squash), ry * squash, rz * (2 - squash)) * (rel - rel.Position)
+		local kind = pc.Kind
+		if kind == "Flap" then
+			pc.Part.CFrame = cf * CFrame.new(pc.Side * 0.8, 0, 0.3) * CFrame.Angles(0, pc.Side * flap * 0.6, pc.Side * flap)
+				* CFrame.new(-pc.Side * 0.8, 0, -0.3) * relSq
+		elseif kind == "Wiggle" then
+			pc.Part.CFrame = cf * CFrame.new(0, ry, 0) * CFrame.Angles(0, 0, math.sin(t * 6 + pc.Side) * 0.12)
+				* CFrame.new(0, -ry, 0) * relSq
+		elseif kind == "Wag" then
+			pc.Part.CFrame = cf * CFrame.Angles(0, math.sin(t * 12) * 0.35, 0) * relSq
+		elseif kind == "Halo" then
+			pc.Part.CFrame = cf * CFrame.Angles(0, t * 1.5, 0) * relSq
+		else
+			pc.Part.CFrame = cf * relSq
+			if kind == "Blink" then
+				pc.Part.Size = if blink then Vector3.new(pc.Size.X, pc.Size.Y * 0.12, pc.Size.Z) else pc.Size
+			elseif kind == "Flicker" then
+				pc.Part.Size = pc.Size * (1 + math.sin(t * 17) * 0.12)
+			elseif kind == "Main" and f.Tier == 2 then
+				pc.Part.Color = pc.Color:Lerp(RAINBOW[(math.floor(now * 2) % #RAINBOW) + 1], 0.45)
+			end
+		end
+	end
 end
 
 local function watchPlayer(p: Player)
@@ -425,7 +497,7 @@ function Pets.start()
 	overlay = Ui.frame(gui, {
 		Name = "Hatch",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Color3.fromRGB(20, 10, 35),
+		BackgroundColor3 = Color3.fromRGB(70, 50, 100),
 		BackgroundTransparency = 0.35,
 		Visible = false,
 		ZIndex = 60,
@@ -433,7 +505,7 @@ function Pets.start()
 
 	-- bouton dans la barre de gauche
 	Ui.button(Hud.leftBar, "🐾", Ui.Pink, function()
-		if window.Visible then
+		if Ui.isOpen(window) then
 			Ui.close(window)
 		else
 			Pets.open()
@@ -472,24 +544,29 @@ function Pets.start()
 	Players.PlayerRemoving:Connect(clearFollowers)
 	RunService.RenderStepped:Connect(function(dt: number)
 		local now = os.clock()
+		local camera = workspace.CurrentCamera
+		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		for p, list in followers do
 			local character = p.Character
 			local root = character and character:FindFirstChild("HumanoidRootPart")
 			if root and root:IsA("BasePart") then
 				local rootCF = (root :: BasePart).CFrame
+				local near = (rootCF.Position - eye).Magnitude < NEAR
 				for i, f in list do
-					local side = (i - (#list + 1) / 2) * 3
-					local target = (rootCF * CFrame.new(side, 1.5 + math.sin(now * 3 + i) * 0.5, 4.5)).Position
-					f.Pos = f.Pos:Lerp(target, math.min(1, dt * 8))
+					local side = (i - (#list + 1) / 2) * 3.4
+					local target = (rootCF * CFrame.new(side, 1.2, 4.8)).Position
+					f.Pos = f.Pos:Lerp(target, math.min(1, dt * 7))
+					local speed = (f.Pos - f.Last).Magnitude / math.max(dt, 1 / 240)
+					f.Last = f.Pos
 					local look = CFrame.lookAt(f.Pos, f.Pos + rootCF.LookVector)
-					f.Body.CFrame = look
-					if f.Tier == 2 then
-						f.Body.Color = RAINBOW[(math.floor(now * 5 + i) % #RAINBOW) + 1]
-					end
-					f.Eyes[1].CFrame = look * CFrame.new(-0.42, 0.2, -0.85)
-					f.Eyes[2].CFrame = look * CFrame.new(0.42, 0.2, -0.85)
+					animate(f, look, now, speed, near)
 				end
 			end
+		end
+		-- compagnons qui tournent dans l'interface
+		for model, info in spinning do
+			local k = now + info.Phase
+			model:PivotTo(info.Base * CFrame.Angles(0, math.sin(k * 0.8) * 0.6, 0) + Vector3.new(0, math.abs(math.sin(k * 3)) * 0.25, 0))
 		end
 	end)
 end

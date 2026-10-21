@@ -14,15 +14,16 @@ local Ui = {}
 local player = Players.LocalPlayer
 
 Ui.Font = Enum.Font.FredokaOne
-Ui.Ink = Color3.fromRGB(45, 25, 70)
+-- Couleurs pastel (douces pour les yeux). Le jaune « pièce » reste vif : c'est la couleur des récompenses.
+Ui.Ink = Color3.fromRGB(84, 60, 110)
 Ui.White = Color3.new(1, 1, 1)
-Ui.Pink = Color3.fromRGB(255, 92, 168)
-Ui.Blue = Color3.fromRGB(82, 200, 255)
-Ui.Yellow = Color3.fromRGB(255, 214, 64)
-Ui.Green = Color3.fromRGB(90, 230, 120)
-Ui.Purple = Color3.fromRGB(170, 110, 255)
-Ui.Red = Color3.fromRGB(255, 90, 90)
-Ui.Panel = Color3.fromRGB(255, 246, 252)
+Ui.Pink = Color3.fromRGB(255, 150, 196)
+Ui.Blue = Color3.fromRGB(130, 196, 250)
+Ui.Yellow = Color3.fromRGB(255, 206, 80)
+Ui.Green = Color3.fromRGB(126, 214, 156)
+Ui.Purple = Color3.fromRGB(184, 150, 250)
+Ui.Red = Color3.fromRGB(250, 140, 150)
+Ui.Panel = Color3.fromRGB(255, 249, 252)
 
 local playSound: ((string, number?, number?) -> ())? = nil
 function Ui.setSoundPlayer(fn: (string, number?, number?) -> ())
@@ -140,6 +141,26 @@ function Ui.button(parent: Instance, text: string, color: Color3, onClick: () ->
 			(b :: any)[k] = v
 		end
 	end
+	-- le bouton s'écrase quand on appuie, puis rebondit quand on relâche
+	local anyB = b :: any
+	anyB.InputEnded:Connect(function()
+		local sc = b:FindFirstChildOfClass("UIScale") :: UIScale?
+		if sc and sc.Scale < 1 then
+			TweenService:Create(sc, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		end
+	end)
+	anyB.InputBegan:Connect(function(input: InputObject)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
+		local sc = b:FindFirstChildOfClass("UIScale") :: UIScale?
+		if not sc then
+			local n = Instance.new("UIScale")
+			n.Parent = b
+			sc = n
+		end
+		TweenService:Create(sc :: UIScale, TweenInfo.new(0.08, Enum.EasingStyle.Quad), { Scale = 0.9 }):Play()
+	end)
 	b.Activated:Connect(function()
 		Ui.bounce(b)
 		if playSound then
@@ -203,6 +224,7 @@ function Ui.open(w: GuiObject)
 		Ui.close(openWindow)
 	end
 	openWindow = w
+	w:SetAttribute("CloseToken", (tonumber(w:GetAttribute("CloseToken")) or 0) + 1)
 	w.Visible = true
 	local scale = w:FindFirstChildOfClass("UIScale") :: UIScale?
 	if not scale then
@@ -212,18 +234,66 @@ function Ui.open(w: GuiObject)
 	end
 	local sc = scale :: UIScale
 	sc.Scale = 0.6
-	TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(sc, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	-- petite oscillation à l'ouverture
+	w.Rotation = -3
+	TweenService:Create(w, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 end
 
 function Ui.close(w: GuiObject)
 	if openWindow == w then
 		openWindow = nil
 	end
-	w.Visible = false
+	if not w.Visible then
+		return
+	end
+	-- la fenêtre rétrécit puis disparaît
+	local token = (tonumber(w:GetAttribute("CloseToken")) or 0) + 1
+	w:SetAttribute("CloseToken", token)
+	local sc = w:FindFirstChildOfClass("UIScale") :: UIScale?
+	if sc then
+		TweenService:Create(sc, TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.5 }):Play()
+		task.delay(0.14, function()
+			if w:GetAttribute("CloseToken") == token then
+				w.Visible = false
+			end
+		end)
+	else
+		w.Visible = false
+	end
 end
 
 function Ui.isOpen(w: GuiObject): boolean
-	return w.Visible
+	return openWindow == w and w.Visible
+end
+
+-- Le bouton « respire » doucement pour attirer l'œil (ex. une récompense à prendre)
+function Ui.breathe(gui: GuiObject, amount: number?)
+	local sc = gui:FindFirstChildOfClass("UIScale") :: UIScale?
+	if not sc then
+		local n = Instance.new("UIScale")
+		n.Parent = gui
+		sc = n
+	end
+	local tween = TweenService:Create(sc :: UIScale, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{ Scale = 1 + (amount or 0.06) })
+	tween:Play()
+	return tween
+end
+
+-- Fait apparaître un élément en « pop » (petit puis grand puis normal)
+function Ui.popIn(gui: GuiObject, delay: number?)
+	local sc = gui:FindFirstChildOfClass("UIScale") :: UIScale?
+	if not sc then
+		local n = Instance.new("UIScale")
+		n.Parent = gui
+		sc = n
+	end
+	local s = sc :: UIScale
+	s.Scale = 0
+	task.delay(delay or 0, function()
+		TweenService:Create(s, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	end)
 end
 
 -- Pluie de confettis à l'écran
