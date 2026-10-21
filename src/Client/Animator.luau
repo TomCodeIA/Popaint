@@ -1,6 +1,10 @@
 --!strict
 -- Popaint : anime le décor chez le joueur (bonbon qui tourne, phare, île flottante, gelée qui tremble...).
--- Un objet de la map est animé s'il porte l'attribut "Anim" (ex. "Spin,Bob"), voir tools/build.luau.
+-- Un objet de la map est animé s'il porte l'attribut "Anim" (ex. "Spin,Bob"), voir tools/map/lib.luau.
+-- Animations : Spin (tourne, SpinAxis = "X"/"Y"/"Z"), Bob (flotte), Pulse (scintille), Wobble (gelée),
+-- Sway (se balance depuis le pied), Drift (dérive d'un côté à l'autre), Swim (nage en rond),
+-- Blink (ses lumières clignotent doucement).
+-- Seulement près du joueur (AnimRange, 200 studs par défaut) : le reste ne bouge pas, pour les téléphones.
 --
 -- Compatible avec le chargement progressif (StreamingEnabled) : les objets qui arrivent près du
 -- joueur sont pris en charge dès qu'ils apparaissent, et oubliés quand ils disparaissent.
@@ -15,11 +19,13 @@ type Entry = {
 	Base: CFrame?,
 	Parts: { { Part: BasePart, Transparency: number, Size: Vector3 } },
 	Phase: number,
+	Foot: Vector3?, -- pied de l'objet (pivot du balancement)
+	Lights: { { Light: PointLight, Brightness: number } },
+	Range: number,
 	Count: number, -- nombre de pièces au dernier inventaire (pour détecter les arrivées)
 }
 
 local entries: { [Instance]: Entry } = {}
-local MAX_DISTANCE = 450 -- au-delà, inutile d'animer
 
 local function num(inst: Instance, name: string, default: number): number
 	local v = inst:GetAttribute(name)
@@ -52,6 +58,16 @@ local function inventory(e: Entry)
 	for _, p in parts do
 		table.insert(e.Parts, { Part = p, Transparency = p.Transparency, Size = p.Size })
 	end
+	e.Lights = {}
+	local minY = math.huge
+	for _, p in parts do
+		minY = math.min(minY, p.CFrame.Position.Y - p.Size.Y / 2)
+		for _, l in p:GetChildren() do
+			if l:IsA("PointLight") then
+				table.insert(e.Lights, { Light = l :: PointLight, Brightness = (l :: PointLight).Brightness })
+			end
+		end
+	end
 	if #parts == 0 then
 		e.Base = nil
 	elseif e.Inst:IsA("Model") then
@@ -62,6 +78,10 @@ local function inventory(e: Entry)
 		end
 	else
 		e.Base = (e.Inst :: BasePart).CFrame
+	end
+	if e.Base then
+		local b = e.Base :: CFrame
+		e.Foot = Vector3.new(b.Position.X, minY, b.Position.Z)
 	end
 end
 
@@ -77,7 +97,10 @@ local function track(inst: Instance)
 	for k in string.gmatch(kinds, "[^,]+") do
 		set[k] = true
 	end
-	local e: Entry = { Inst = inst, Kinds = set, Base = nil, Parts = {}, Phase = math.random() * 10, Count = -1 }
+	local e: Entry = {
+		Inst = inst, Kinds = set, Base = nil, Parts = {}, Phase = math.random() * 10, Count = -1, Foot = nil, Lights = {},
+		Range = num(inst, "AnimRange", 200),
+	}
 	entries[inst] = e
 	inventory(e)
 end
@@ -114,18 +137,36 @@ function Animator.start()
 			if not base or #e.Parts == 0 then
 				continue
 			end
-			if (base.Position - eye).Magnitude > MAX_DISTANCE then
+			if (base.Position - eye).Magnitude > e.Range then
 				continue
 			end
 			local inst = e.Inst
 			local t = now + e.Phase
-			if e.Kinds.Spin or e.Kinds.Bob then
+			local k = e.Kinds
+			if k.Spin or k.Bob or k.Sway or k.Drift or k.Swim then
 				local cf = base
-				if e.Kinds.Bob then
+				if k.Bob then
 					cf = cf + Vector3.new(0, math.sin(t * num(inst, "BobSpeed", 1)) * num(inst, "BobAmp", 1), 0)
 				end
-				if e.Kinds.Spin then
-					cf = cf * CFrame.Angles(0, math.rad(now * num(inst, "SpinSpeed", 20)), 0)
+				if k.Drift then
+					local amp = num(inst, "DriftAmp", 6)
+					cf = cf + Vector3.new(math.sin(t * num(inst, "DriftSpeed", 0.15)) * amp, 0, math.cos(t * num(inst, "DriftSpeed", 0.15) * 0.7) * amp * 0.4)
+				end
+				if k.Swim then
+					local r, sp = num(inst, "SwimRadius", 2.5), num(inst, "SwimSpeed", 0.4)
+					local a = t * sp
+					cf = CFrame.new(Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)) * cf * CFrame.Angles(0, -a, 0)
+				end
+				if k.Spin then
+					local ang = math.rad(now * num(inst, "SpinSpeed", 20))
+					local axis = inst:GetAttribute("SpinAxis")
+					cf = cf * (if axis == "X" then CFrame.Angles(ang, 0, 0) elseif axis == "Z" then CFrame.Angles(0, 0, ang) else CFrame.Angles(0, ang, 0))
+				end
+				if k.Sway and e.Foot then
+					local amp = math.rad(num(inst, "SwayAmp", 4))
+					local sp = num(inst, "SwaySpeed", 1)
+					local foot = CFrame.new(e.Foot :: Vector3)
+					cf = foot * CFrame.Angles(math.sin(t * sp) * amp, 0, math.cos(t * sp * 0.83) * amp * 0.7) * foot:Inverse() * cf
 				end
 				if inst:IsA("Model") then
 					(inst :: Model):PivotTo(cf)
@@ -133,13 +174,19 @@ function Animator.start()
 					(inst :: BasePart).CFrame = cf
 				end
 			end
-			if e.Kinds.Pulse then
-				local k = (math.sin(t * num(inst, "PulseSpeed", 1.5)) + 1) / 2
-				for _, p in e.Parts do
-					p.Part.Transparency = math.clamp(p.Transparency + k * 0.35, 0, 0.95)
+			if k.Blink then
+				local glow = 0.55 + 0.45 * math.sin(t * num(inst, "BlinkSpeed", 2))
+				for _, l in e.Lights do
+					l.Light.Brightness = l.Brightness * glow
 				end
 			end
-			if e.Kinds.Wobble then
+			if k.Pulse then
+				local glow = (math.sin(t * num(inst, "PulseSpeed", 1.5)) + 1) / 2
+				for _, p in e.Parts do
+					p.Part.Transparency = math.clamp(p.Transparency + glow * 0.35, 0, 0.95)
+				end
+			end
+			if k.Wobble then
 				local s = math.sin(t * num(inst, "WobbleSpeed", 2))
 				for _, p in e.Parts do
 					p.Part.Size = Vector3.new(p.Size.X * (1 + s * 0.05), p.Size.Y * (1 - s * 0.06), p.Size.Z * (1 + s * 0.05))

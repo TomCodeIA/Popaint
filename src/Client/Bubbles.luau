@@ -82,7 +82,10 @@ local function spawnBubble(ownerId: number, id: number, position: Vector3, size:
 		size *= 1.2
 	end
 	local shell = newBall(size, color, Enum.Material.ForceField, if mine then 0 else 0.6)
-	local core = newBall(size * 0.55, Color3.new(1, 1, 1):Lerp(color, 0.5), Enum.Material.Neon, if mine then 0.55 else 0.85)
+	-- cœur doux pour les bulles normales ; les bulles dorées (récompense) gardent un cœur lumineux
+	local vivid = kindName == "high" or storm == true
+	local core = newBall(size * 0.55, Color3.new(1, 1, 1):Lerp(color, if vivid then 0.5 else 0.35),
+		if vivid then Enum.Material.Neon else Enum.Material.Glass, if mine then (if vivid then 0.55 else 0.4) else 0.85)
 	shell.CFrame = CFrame.new(position)
 	core.CFrame = CFrame.new(position)
 	local parent = if mine then mineFolder else othersFolder
@@ -92,7 +95,7 @@ local function spawnBubble(ownerId: number, id: number, position: Vector3, size:
 		local light = Instance.new("PointLight")
 		light.Color = color
 		light.Range = size * 2.2
-		light.Brightness = if kindName == "high" then 2 else 1
+		light.Brightness = if vivid then 2 else 0.6
 		light.Parent = core
 	end
 	bubbles[k] = {

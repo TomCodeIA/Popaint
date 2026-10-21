@@ -33,7 +33,7 @@ local function safeStart(name: string, fn: () -> ())
 end
 
 safeStart("Hud", Hud.start)
-for _, name in { "Shop", "Pets", "Daily", "MiniMap", "Tutorial", "World", "Treadmill", "Animator" } do
+for _, name in { "Shop", "Pets", "Daily", "MiniMap", "Tutorial", "World", "Treadmill", "Animator", "Detail", "Juice" } do
 	safeStart(name, function()
 		load(name).start()
 	end)

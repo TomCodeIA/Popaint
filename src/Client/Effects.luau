@@ -79,7 +79,7 @@ end
 function Effects.splashRing(position: Vector3, color: Color3, radius: number)
 	local ring = anchoredPart()
 	ring.Shape = Enum.PartType.Cylinder
-	ring.Material = Enum.Material.Neon
+	ring.Material = Enum.Material.SmoothPlastic
 	ring.Color = color
 	ring.Transparency = 0.15
 	ring.Size = Vector3.new(0.2, 1, 1)

@@ -39,31 +39,31 @@ local Zones: { ZoneDef } = {
 	{
 		Id = "CandyMeadow", Name = "CANDY MEADOW", DisplayKey = "Zone_CandyMeadow",
 		Cost = 0, StudValue = 1, EggCost = 150, EggPower = 1,
-		Color = Color3.fromRGB(255, 92, 168), Platform = Color3.fromRGB(255, 205, 225),
+		Color = Color3.fromRGB(255, 150, 196), Platform = Color3.fromRGB(255, 214, 230),
 		Cell = { 0, -1 }, From = "Hub", Shape = "Circle", Centerpiece = "GiantCandy", Theme = "Candy",
 	},
 	{
 		Id = "NeonDocks", Name = "NEON DOCKS", DisplayKey = "Zone_NeonDocks",
 		Cost = 5000, StudValue = 3, EggCost = 2500, EggPower = 1.6,
-		Color = Color3.fromRGB(82, 215, 255), Platform = Color3.fromRGB(40, 40, 90),
+		Color = Color3.fromRGB(130, 200, 250), Platform = Color3.fromRGB(196, 212, 244),
 		Cell = { -1, 0 }, From = "Hub", Shape = "Octagon", Centerpiece = "Lighthouse", Theme = "Neon",
 	},
 	{
 		Id = "JellyCanyon", Name = "JELLY CANYON", DisplayKey = "Zone_JellyCanyon",
 		Cost = 75000, StudValue = 10, EggCost = 40000, EggPower = 2.4,
-		Color = Color3.fromRGB(120, 255, 140), Platform = Color3.fromRGB(150, 230, 140),
+		Color = Color3.fromRGB(140, 222, 160), Platform = Color3.fromRGB(196, 238, 200),
 		Cell = { 1, 0 }, From = "Hub", Shape = "SCanyon", Centerpiece = "JellyCubes", Theme = "Jelly",
 	},
 	{
 		Id = "CrystalPeaks", Name = "CRYSTAL PEAKS", DisplayKey = "Zone_CrystalPeaks",
 		Cost = 1000000, StudValue = 35, EggCost = 600000, EggPower = 3.5,
-		Color = Color3.fromRGB(170, 220, 255), Platform = Color3.fromRGB(200, 230, 255),
+		Color = Color3.fromRGB(170, 210, 250), Platform = Color3.fromRGB(214, 232, 255),
 		Cell = { 0, 1 }, From = "Hub", Shape = "Star", Centerpiece = "GiantCrystal", Theme = "Crystal",
 	},
 	{
 		Id = "RainbowCore", Name = "RAINBOW CORE", DisplayKey = "Zone_RainbowCore",
 		Cost = 20000000, StudValue = 120, EggCost = 10000000, EggPower = 5,
-		Color = Color3.fromRGB(255, 214, 64), Platform = Color3.fromRGB(255, 255, 255),
+		Color = Color3.fromRGB(255, 210, 110), Platform = Color3.fromRGB(255, 250, 244),
 		Cell = { 0, -2 }, From = "CandyMeadow", Shape = "Ring", Centerpiece = "FloatingIsland", Theme = "Rainbow",
 	},
 
@@ -71,7 +71,7 @@ local Zones: { ZoneDef } = {
 	{
 		Id = "PumpkinPatch", Name = "PUMPKIN PATCH", DisplayKey = "Zone_PumpkinPatch",
 		Cost = 0, StudValue = 1, EggCost = 200, EggPower = 2.4,
-		Color = Color3.fromRGB(255, 140, 40), Platform = Color3.fromRGB(70, 40, 90),
+		Color = Color3.fromRGB(255, 180, 120), Platform = Color3.fromRGB(196, 178, 222),
 		Cell = { 1, 1 }, From = "JellyCanyon", Shape = "Pumpkin", Centerpiece = "GiantPumpkin", Theme = "Spooky",
 		Event = "Halloween2026", StudValueScale = 1.5, EggScale = true,
 	},

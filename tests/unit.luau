@@ -290,6 +290,33 @@ test("événements : dates valides", function()
 	end
 end)
 
+test("compagnons : apparences 3D valides et modèles constructibles", function()
+	local Models = lib.loadModule("src/Shared/CompanionModels.luau")
+	for _, row in lib.loadFile("src/Shared/Content/Companions.luau", lib.baseEnv()) do
+		local look = row.Look
+		if look then
+			ok(look.Body == nil or table.find(Models.Bodies, look.Body), row.Id .. " : forme inconnue " .. tostring(look.Body))
+			for _, x in look.Extras or {} do
+				ok(Models.Extras[x] ~= nil, row.Id .. " : accessoire inconnu " .. tostring(x))
+			end
+		end
+		for tier = 0, 2 do
+			local m = Models.build(row, tier)
+			ok(m.PrimaryPart ~= nil, row.Id .. " : pièce principale")
+			local n, maxR = 0, 0
+			for _, d in m:GetDescendants() do
+				if d:IsA("BasePart") then
+					n += 1
+					ok(d.Anchored and not d.CanCollide and not d.CanTouch, row.Id .. " : pièce sans collision")
+					maxR = math.max(maxR, d.CFrame.Position.Magnitude)
+				end
+			end
+			ok(n >= 12, row.Id .. " : assez détaillé (" .. n .. " pièces)")
+			ok(maxR < 4.5, row.Id .. " : taille raisonnable")
+		end
+	end
+end)
+
 test("quêtes : types connus, zones et événements existants", function()
 	for _, q in Config.Quests do
 		ok(KNOWN_QUEST_TYPES[q.Type], q.Id .. " : type inconnu " .. tostring(q.Type))

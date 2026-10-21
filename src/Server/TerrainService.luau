@@ -6,18 +6,18 @@ local TerrainService = {}
 
 -- Couleurs des matériaux du terrain (une couleur par matériau, choisie selon la zone qui l'utilise)
 local COLORS: { [string]: Color3 } = {
-	Grass = Color3.fromRGB(255, 175, 215),
-	Sandstone = Color3.fromRGB(255, 235, 170),
-	Basalt = Color3.fromRGB(70, 50, 125),
-	CrackedLava = Color3.fromRGB(82, 215, 255),
-	LeafyGrass = Color3.fromRGB(130, 235, 110),
-	Limestone = Color3.fromRGB(215, 255, 200),
-	Glacier = Color3.fromRGB(170, 215, 255),
+	Grass = Color3.fromRGB(250, 196, 222),
+	Sandstone = Color3.fromRGB(255, 238, 200),
+	Basalt = Color3.fromRGB(168, 182, 226),
+	CrackedLava = Color3.fromRGB(190, 232, 248),
+	LeafyGrass = Color3.fromRGB(176, 230, 180),
+	Limestone = Color3.fromRGB(226, 248, 220),
+	Glacier = Color3.fromRGB(200, 222, 250),
 	Snow = Color3.fromRGB(255, 255, 255),
 	Sand = Color3.fromRGB(255, 240, 205),
 	Salt = Color3.fromRGB(255, 220, 245),
-	Mud = Color3.fromRGB(85, 55, 95),
-	Slate = Color3.fromRGB(255, 150, 60),
+	Mud = Color3.fromRGB(180, 160, 206),
+	Slate = Color3.fromRGB(255, 206, 170),
 }
 
 local function materialOf(name: any): Enum.Material?

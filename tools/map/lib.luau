@@ -31,12 +31,40 @@ function lib.rgb(r, g, b)
 	return Color3.fromRGB(r, g, b)
 end
 
-lib.RAINBOW = {
+-- Palette PASTEL du jeu (douce pour les yeux). Les touches vives sont réservées aux récompenses.
+lib.P = {
+	pink = lib.rgb(255, 190, 215),
+	rose = lib.rgb(246, 156, 192),
+	peach = lib.rgb(255, 210, 178),
+	butter = lib.rgb(255, 236, 170),
+	mint = lib.rgb(184, 238, 204),
+	sage = lib.rgb(160, 214, 180),
+	sky = lib.rgb(182, 218, 255),
+	aqua = lib.rgb(176, 234, 230),
+	lavender = lib.rgb(206, 192, 255),
+	lilac = lib.rgb(232, 196, 244),
+	coral = lib.rgb(255, 178, 170),
+	cream = lib.rgb(255, 248, 236),
+	white = lib.rgb(255, 255, 255),
+	plum = lib.rgb(150, 120, 172), -- contraste doux (yeux, ombres, troncs)
+	cocoa = lib.rgb(176, 132, 110),
+	ink = lib.rgb(84, 64, 104),
+	gold = lib.rgb(255, 208, 90), -- touche vive : pièces, récompenses
+}
+lib.RAINBOW = { lib.P.pink, lib.P.butter, lib.P.mint, lib.P.sky, lib.P.lavender }
+lib.CANDY = { lib.P.pink, lib.P.sky, lib.P.butter, lib.P.mint, lib.P.lavender, lib.P.peach, lib.P.aqua, lib.P.lilac }
+-- Arc-en-ciel vif : seulement pour les moments forts (Rainbow Storm, récompenses)
+lib.VIVID = {
 	lib.rgb(255, 92, 168), lib.rgb(255, 214, 64), lib.rgb(120, 255, 140), lib.rgb(82, 215, 255), lib.rgb(186, 120, 255),
 }
-lib.CANDY = {
-	lib.rgb(255, 92, 168), lib.rgb(82, 215, 255), lib.rgb(255, 214, 64), lib.rgb(120, 255, 140), lib.rgb(186, 120, 255),
-}
+
+-- Couleur éclaircie (k = 0 : identique, 1 : blanc) et assombrie
+function lib.tint(c, k)
+	return c:Lerp(lib.rgb(255, 255, 255), k)
+end
+function lib.dark(c, k)
+	return c:Lerp(lib.rgb(70, 50, 90), k)
+end
 
 -- Générateur pseudo-aléatoire déterministe : la map est identique à chaque construction
 function lib.rng(seed)
@@ -194,6 +222,25 @@ function lib.primary(m)
 		end
 	end
 	return m
+end
+
+-- Sous-modèle "Details" : les petites pièces qu'on ne montre que de près (src/Client/Detail.luau)
+function lib.details(m)
+	local d = m:FindFirstChild("Details")
+	if d then
+		return d
+	end
+	d = lib.Instance.new("Model")
+	d.Name = "Details"
+	d.Parent = m
+	return d
+end
+
+-- Lueur douce (remplace le néon qui éblouit) : matériau lisse + petite lumière
+function lib.glow(part, color, range)
+	part.Material = Enum.Material.SmoothPlastic
+	local l = lib.light(part, color or part.Color, range or 10, 0.6)
+	return l
 end
 
 -- Animation jouée chez les joueurs (voir src/Client/Animator.luau) : "Spin", "Bob", "Pulse", "Wobble"
