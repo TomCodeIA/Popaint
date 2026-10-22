@@ -1,5 +1,31 @@
 # Journal des versions de Popaint
 
+## 0.8.0 — 22 octobre 2026
+- **Particules partout** (visibles par tout le monde, débit volontairement raisonnable) :
+  - **ambiance par zone** dans l'air : pétales à Candy Meadow, bulles de savon aux Neon Docks,
+    lucioles à Jelly Canyon, flocons à Crystal Peaks, poussière dorée à Rainbow Core, feuilles à
+    Pumpkin Patch ; bulles et pétales au-dessus du hub (`lib.particles`, champ `Air` des thèmes) ;
+  - **magie des œufs** : halo qui monte, étincelles autour de la coquille, gerbe d'étoiles 3D à
+    l'éclosion ; **traînée** derrière les compagnons, plus marquée selon la rareté.
+- **Le monde qui respire** : les œufs tremblent, les portails pulsent, l'eau de la fontaine coule
+  vraiment (gouttes qui défilent), les guirlandes de fanions ondulent, la bulle des machines respire.
+  Trois nouvelles animations : `Flow` (défilement), `Hop` (sautillement), `Shake` (tremblement).
+- **Petits habitants** : oiseaux qui tournent dans le ciel, poissons qui sautent, lapins qui
+  sautillent, crabes sur les plages — en plus des papillons.
+- **Cycle jour / nuit doux** (`src/Client/DayNight.luau`) : le ciel passe lentement du matin au
+  crépuscule (20 min par tour), la même heure pour tous, et **les lampes s'allument le soir**.
+  Il ne fait jamais nuit noire, et la Rainbow Storm ramène le plein jour.
+- **Encore plus de 3D** :
+  - **bases** : cuve à savon en verre avec bulles qui montent, tuyau courbe, manomètre à aiguille,
+    cheminée, auvent rayé, marche, rivets, boîte aux lettres, haut-parleur et serviette ;
+  - **pièces centrales** : gros nœud de ruban sur le bonbon, rochers/ponton/drapeau au phare, halo
+    d'arcs tournants et runes au cristal, cascade et maisonnette sur l'île volante, bottes de foin et
+    vignes sur la citrouille, plus un jardin (marches, jardinières, lanternes) autour de chacune ;
+  - **sol des zones** : relief refait (toutes les zones ont enfin des collines, jamais de falaise au
+    bord), bordure décorée tout autour, chemin balisé du pont jusqu'au centre, coulées de peinture ;
+  - **personnage** : réservoir à bulles dans le dos et pinceau dans la main, à la couleur de peinture
+    du joueur, visibles par tous (`src/Server/LookService.luau`).
+
 ## 0.7.0 — 22 octobre 2026
 - **Plus aucun fluo** : le matériau néon a disparu de tout le jeu (map, bulles, compagnons, interface).
   Les récompenses gardent un **doré doux** au lieu du jaune qui pique. Un test vérifie qu'aucun néon

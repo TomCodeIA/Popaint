@@ -282,7 +282,19 @@ local function hatch(data: any)
 	egg:Destroy()
 	Effects.play(Config.Sounds.Pop, 0.8, 0.8)
 	Effects.play(Config.Sounds.Reward, 0.7, 1)
-	Ui.confetti(gui, 70)
+	Ui.confetti(gui, 90)
+	-- gerbe d'étoiles sur l'œuf, dans le monde
+	local map = workspace:FindFirstChild("Map")
+	local eggs = map and map:FindFirstChild("Eggs")
+	local eggModel = eggs and eggs:FindFirstChild(tostring(data.Zone))
+	local eggShell = eggModel and eggModel:FindFirstChild("Shell", true)
+	if eggShell and eggShell:IsA("BasePart") then
+		local at = (eggShell :: BasePart).CFrame.Position
+		for _, c in { def.Color, Color3.new(1, 1, 1), rarityColor(def.Rarity) } do
+			Effects.burst(at, c, 30, 1.6)
+		end
+		Effects.splashRing(at - Vector3.new(0, 4, 0), rarityColor(def.Rarity), 14)
+	end
 	-- le compagnon apparaît
 	local rays = Ui.frame(overlay, {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -362,6 +374,32 @@ local function makeFollower(id: string, tier: number, at: Vector3): Follower?
 				(d :: ParticleEmitter).Enabled = false
 			end
 		end
+	end
+	-- petite traînée magique derrière le compagnon (plus marquée quand il est rare)
+	local main = model.PrimaryPart
+	local def = Config.Companions[id]
+	local rarity = if def then def.Rarity else "Common"
+	local power = ({ Common = 0, Rare = 0.45, Epic = 0.6, Legendary = 0.8, Mythic = 1 })[rarity] or 0
+	if tier > 0 then
+		power = math.max(power, 0.8)
+	end
+	if main and power > 0 then
+		local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+		a0.Position = Vector3.new(0, 0.35, 0.3)
+		a1.Position = Vector3.new(0, -0.35, 0.3)
+		a0.Parent = main
+		a1.Parent = main
+		local trail = Instance.new("Trail")
+		trail.Attachment0 = a0
+		trail.Attachment1 = a1
+		local c = if tier == 1 then Color3.fromRGB(255, 212, 120) elseif def then def.Color else Ui.White
+		trail.Color = ColorSequence.new(c, Color3.new(1, 1, 1))
+		trail.Transparency = NumberSequence.new(1 - power * 0.6, 1)
+		trail.Lifetime = 0.45
+		trail.LightEmission = 0.1
+		trail.FaceCamera = true
+		trail.WidthScale = NumberSequence.new(1, 0.1)
+		trail.Parent = main
 	end
 	model:PivotTo(CFrame.new(at))
 	model.Parent = followFolder

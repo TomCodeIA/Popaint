@@ -145,7 +145,7 @@ function Animator.start()
 			local inst = e.Inst
 			local t = now + e.Phase
 			local k = e.Kinds
-			if k.Spin or k.Bob or k.Sway or k.Drift or k.Swim then
+			if k.Spin or k.Bob or k.Sway or k.Drift or k.Swim or k.Flow or k.Hop or k.Shake then
 				local cf = base
 				if k.Bob then
 					cf = cf + Vector3.new(0, math.sin(t * num(inst, "BobSpeed", 1)) * num(inst, "BobAmp", 1), 0)
@@ -153,6 +153,31 @@ function Animator.start()
 				if k.Drift then
 					local amp = num(inst, "DriftAmp", 6)
 					cf = cf + Vector3.new(math.sin(t * num(inst, "DriftSpeed", 0.15)) * amp, 0, math.cos(t * num(inst, "DriftSpeed", 0.15) * 0.7) * amp * 0.4)
+				end
+				if k.Hop then
+					-- petit saut : monte, retombe, se penche en avant pendant le saut
+					local sp = num(inst, "HopSpeed", 1.6)
+					local phase = (t * sp) % 1
+					local jump = math.sin(math.min(phase, 0.5) * 2 * math.pi) -- 0 → 1 → 0 puis pause au sol
+					local up = math.max(0, jump) * num(inst, "HopHeight", 2)
+					cf = cf * CFrame.new(0, up, 0) * CFrame.Angles(math.max(0, jump) * -0.25, 0, 0)
+				end
+				if k.Flow then
+					-- défilement le long d'une direction (eau qui coule, tapis)
+					local dir = Vector3.new(num(inst, "FlowX", 0), num(inst, "FlowY", -1), num(inst, "FlowZ", 0))
+					if dir.Magnitude > 0.001 then
+						local dist = num(inst, "FlowDist", 2)
+						cf = cf + dir.Unit * (((now * num(inst, "FlowSpeed", 1)) % 1) * dist)
+					end
+				end
+				if k.Shake then
+					-- tremble de temps en temps (œuf prêt à éclore)
+					local period = num(inst, "ShakePeriod", 4)
+					local phase = (t % period) / period
+					if phase < 0.22 then
+						local a = math.sin(phase / 0.22 * math.pi * 6) * math.rad(num(inst, "ShakeAmp", 7))
+						cf = cf * CFrame.Angles(0, 0, a) * CFrame.new(0, math.abs(a) * 1.2, 0)
+					end
 				end
 				if k.Swim then
 					local r, sp = num(inst, "SwimRadius", 2.5), num(inst, "SwimSpeed", 0.4)

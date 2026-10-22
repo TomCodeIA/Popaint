@@ -4,7 +4,7 @@
 
 local Config = {}
 
-Config.Version = "0.7.0"
+Config.Version = "0.8.0"
 
 -- Le contenu (zones, compagnons, quêtes, événements, cosmétiques) est dans le dossier Content.
 local ContentFolder = script.Parent:WaitForChild("Content")

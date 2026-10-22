@@ -28,6 +28,7 @@ tools/check.sh      # types, analyse stricte, construction, tests contenu/map, s
 | `src/Shared/` | Config (équilibrage), Formulas (formules pures), Locale (textes en 5 langues), Remotes |
 | `src/Server/` | services serveur (un fichier par système) ; `Main.server.luau` fixe l'ordre de démarrage |
 | `src/Client/` | interface et effets côté joueur ; `ClientMain.client.luau` démarre les modules |
+| `src/Client/Quality.luau` + `Detail.luau` + `DayNight.luau` | fluidité automatique, détails de près, cycle jour/nuit |
 | `tools/build.luau` + `tools/map/` | fabrique le fichier de jeu : scripts + map entière (générée à partir du contenu) ; `tools/map/hub.luau` = fontaine, place, bord du hub, massifs |
 | `tests/` | `unit` (formules, contenu), `place` (fichier de jeu, map), `integration` (vrais scripts dans un serveur simulé) |
 | `CHANGELOG.md` | une entrée par version livrée |
@@ -54,13 +55,19 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 - **Donner du volume** : `lib.roundBox` (boîte à coins arrondis), `lib.blob` (boule déformée) et
   `lib.drips` (glaçage qui coule le long d'un bord). Les petites pièces vont dans `lib.details(m)`
   (affichées seulement de près) et les animations se posent avec `lib.anim` (Spin, Bob, Pulse, Wobble,
-  Sway, Drift, Swim, Blink).
+  Sway, Drift, Swim, Blink, Flow, Hop, Shake). Une nouvelle animation s'ajoute dans
+  `src/Client/Animator.luau` **et** dans la liste `valid` de `tests/place.luau`.
+- **Particules** : `lib.particles(pièce, genre, couleurs, opts)` avec les genres de `lib.PARTICLE_KINDS`
+  (Petals, Soap, Fireflies, Snow, Dust, Leaves, Sparkle, Aura) ; `lib.airBox` crée la pièce invisible
+  qui les porte. L'ambiance d'une zone se règle dans le champ `Air` de son thème (`themes.luau`).
 - **Fluidité** : `src/Client/Quality.luau` choisit un niveau (1 léger / 2 moyen / 3 beau) selon le
   réglage graphique du joueur et ses images par seconde ; Detail, Animator, Pets et Bubbles s'en
   servent. N'ajoute pas de distance en dur : passe par `Quality.settings()`.
 - **Vérifier un modèle sans Studio** : `tools/preview.sh props|companions|base|centerpieces|showcase`
   → image dans `build/preview/` (à regarder, et à envoyer à Tom). `showcase` = fontaine, œuf, portail,
   pont, montagne, îlot.
+- **Ne jamais couvrir une case peignable** : dans une zone, tout décor passe par `info.InMask`
+  (cases) et `info.FreeR` (rayon libre au centre) ; un test vérifie qu'aucune pièce ne déborde.
 - **Équilibrage** : `src/Shared/Config.luau`.
 
 ## Règles à ne jamais casser (sinon perte de progression des joueurs)

@@ -65,7 +65,7 @@ local function target(step: string, rootPos: Vector3): Vector3?
 		return if m then m.Position + Vector3.new(0, 2, 0) else nil
 	elseif step == "OpenEgg" then
 		local egg = workspace:WaitForChild("Map"):WaitForChild("Eggs"):FindFirstChild(Config.MainZones[1].Id)
-		local shell = egg and egg:FindFirstChild("Shell")
+		local shell = egg and egg:FindFirstChild("Shell", true)
 		return if shell and shell:IsA("BasePart") then (shell :: BasePart).Position else nil
 	end
 	return nil

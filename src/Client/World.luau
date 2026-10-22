@@ -27,6 +27,12 @@ local function updateGates(state: any)
 			-- La collision n'existe que chez ce joueur : les autres passent s'ils ont débloqué
 			g.CanCollide = not unlocked
 			g.Transparency = if unlocked then 1 else 0
+			-- la décoration du portail disparaît avec lui (chez ce joueur seulement)
+			for _, d in g:GetDescendants() do
+				if d:IsA("BasePart") then
+					(d :: BasePart).LocalTransparencyModifier = if unlocked then 1 else 0
+				end
+			end
 			local zone = Config.zone(g.Name)
 			local label = g:FindFirstChild("GateLabel", true)
 			local ev = zone and zone.Event and Config.event(zone.Event)

@@ -182,7 +182,7 @@ test("collines peignables : praticables (marches de 1 stud), entrées plates", f
 		for _, t in zone.Tiles:GetChildren() do
 			local h = t:GetAttribute("H") or 0
 			heights[t:GetAttribute("I") .. ":" .. t:GetAttribute("J")] = h
-			ok(h <= 4, "collines de 4 marches max")
+			ok(h <= 6, "collines de 6 marches max")
 			if h > 0 then
 				hillTiles += 1
 			end
@@ -341,7 +341,7 @@ test("pièces centrales : présentes, jamais sur les cases, impossibles à escal
 		local zone = Map.Zones[z.Id]
 		local count = 0
 		for _, child in zone:GetChildren() do
-			if child.Name ~= "Tiles" and child.Name ~= "Decor" and child.Name ~= "Mist" and child.Name ~= "Trim" then
+			if child.Name ~= "Tiles" and child.Name ~= "Decor" and child.Name ~= "Mist" and child.Name ~= "Trim" and child.Name ~= "Air" then
 				for _, p in (if child:IsA("BasePart") then { child } else child:GetDescendants()) do
 					if p:IsA("BasePart") then
 						count += 1
@@ -471,7 +471,8 @@ test("chaque zone a son décor autour (montagnes, îlots, objets, collines lisse
 end)
 
 test("animations valides et brouillard léger", function()
-	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true, Sway = true, Drift = true, Swim = true, Blink = true }
+	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true, Sway = true, Drift = true, Swim = true, Blink = true,
+		Flow = true, Hop = true, Shake = true }
 	local animated, mists = 0, 0
 	for _, d in Map:GetDescendants() do
 		local a = d:GetAttribute("Anim")

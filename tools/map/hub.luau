@@ -22,10 +22,19 @@ end
 
 -- Arc de gouttes d'eau entre deux points (parabole)
 local function waterArc(parent, from, to, height, drops)
+	-- les gouttes défilent le long de l'arc : on dirait que l'eau coule en continu
+	local function pointAt(t)
+		return from:Lerp(to, t) + V3.new(0, math.sin(t * math.pi) * height, 0)
+	end
 	for k = 1, drops do
 		local t = k / (drops + 1)
-		local p = from:Lerp(to, t) + V3.new(0, math.sin(t * math.pi) * height, 0)
-		lib.ball(parent, "Drop", p, 0.75 - t * 0.2, P.sky, M.Glass, { Transparency = 0.25 })
+		local p = pointAt(t)
+		local nextP = pointAt(math.min(1, t + 1 / (drops + 1)))
+		local ball = lib.ball(parent, "Drop", p, 0.75 - t * 0.2, P.sky, M.Glass, { Transparency = 0.25 })
+		local dir = nextP - p
+		lib.anim(ball, "Flow", {
+			FlowX = dir.X, FlowY = dir.Y, FlowZ = dir.Z, FlowDist = dir.Magnitude, FlowSpeed = 1.1, AnimRange = 200,
+		})
 	end
 end
 
@@ -116,6 +125,17 @@ function hub.fountain(parent)
 end
 
 -- Place en mosaïque autour de la fontaine (au ras du sol, on marche dessus)
+-- Ambiance du hub : bulles de savon qui montent et pétales qui tombent sur la place
+function hub.air(parent)
+	local air = lib.folder("Air", parent)
+	local up = lib.airBox(air, "AirBoxUp", CF.new(0, 6, 0), V3.new(170, 2, 170))
+	lib.particles(up, "Soap", { P.sky, P.white, P.pink }, { Rate = 9, Size = 1.4 })
+	local down = lib.airBox(air, "AirBoxDown", CF.new(0, 42, 0), V3.new(180, 2, 180))
+	lib.particles(down, "Petals", { P.pink, P.white, P.lilac }, { Rate = 12, Size = 1.5, Direction = E.NormalId.Bottom })
+	local sparkle = lib.airBox(air, "AirBoxFountain", CF.new(0, 13, 0), V3.new(16, 2, 16))
+	lib.particles(sparkle, "Sparkle", { P.white, P.sky }, { Rate = 5, Size = 1.2 })
+end
+
 function hub.plaza(parent)
 	local m = lib.model("Plaza", parent)
 	for ringIdx, r in { 13.8, 16.2 } do

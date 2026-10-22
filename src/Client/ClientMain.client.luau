@@ -36,7 +36,7 @@ safeStart("Quality", function()
 	load("Quality").start()
 end)
 safeStart("Hud", Hud.start)
-for _, name in { "Shop", "Pets", "Daily", "MiniMap", "Tutorial", "World", "Treadmill", "Animator", "Detail", "Juice" } do
+for _, name in { "Shop", "Pets", "Daily", "MiniMap", "Tutorial", "World", "Treadmill", "Animator", "Detail", "Juice", "DayNight" } do
 	safeStart(name, function()
 		load(name).start()
 	end)

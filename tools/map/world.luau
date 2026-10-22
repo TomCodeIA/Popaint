@@ -221,7 +221,7 @@ local function buildBase(base, facing, padColor, accent, n)
 	lib.cyl(base, "Funnel", (facing * CF.new(0, 10.8, 4)).Position, 0.8, 3.4, tint(accent, 0.3))
 	local mb = lib.part({ Name = "MachineBubble", Shape = E.PartType.Ball, Size = V3.new(4.5, 4.5, 4.5), CFrame = facing * CF.new(0, 12.9, 4),
 		Color = padColor, Material = M.ForceField, CanCollide = false, Parent = base })
-	lib.anim(mb, "Bob", { BobAmp = 0.6, BobSpeed = 2 })
+	lib.anim(mb, "Bob,Wobble", { BobAmp = 0.6, BobSpeed = 2, WobbleSpeed = 1.4 })
 	-- petites bulles qui s'échappent
 	for k = 1, 3 do
 		local bub = lib.ball(base, "FreeBubble", (facing * CF.new(rng(-2, 2), 15 + k * 1.6, 4 + rng(-1.5, 1.5))).Position, 0.6 + k * 0.25,
@@ -281,6 +281,69 @@ local function buildBase(base, facing, padColor, accent, n)
 		lib.blob(fan, "Blade", fc * CF.Angles(k * math.pi / 2, 0, 0) * CF.new(0, 0.6, 0), V3.new(0.1, 1, 0.45), lib.CANDY[k])
 	end
 	lib.anim(fan, "Spin", { SpinSpeed = 240, SpinAxis = "X", AnimRange = 160 })
+	-- CUVE À SAVON en verre, avec des bulles qui montent et un manomètre
+	local tankAt = facing * CF.new(5.8, 3.4, 2.6)
+	lib.cyl(base, "TankFoot", (facing * CF.new(5.8, 1, 2.6)).Position, 1.4, 3.4, P.white)
+	lib.cyl(base, "Tank", (facing * CF.new(5.8, 3.6, 2.6)).Position, 4.4, 2.9, P.sky, M.Glass, { Transparency = 0.35 })
+	lib.cyl(base, "TankSoap", (facing * CF.new(5.8, 2.8, 2.6)).Position, 2.6, 2.6, tint(padColor, 0.2), M.SmoothPlastic, { Transparency = 0.15 })
+	lib.cyl(d, "TankRing", (facing * CF.new(5.8, 5.7, 2.6)).Position, 0.5, 3.2, accent)
+	lib.cyl(d, "TankRing", (facing * CF.new(5.8, 1.7, 2.6)).Position, 0.5, 3.2, accent)
+	for k = 1, 3 do
+		local bub = lib.ball(base, "TankBubble", (facing * CF.new(5.8 + rng(-0.7, 0.7), 2.4 + k * 0.7, 2.6 + rng(-0.7, 0.7))).Position,
+			0.45 + k * 0.12, P.white, M.Glass, { Transparency = 0.25 })
+		lib.anim(bub, "Flow", { FlowY = 1, FlowDist = 2.4, FlowSpeed = 0.5 + k * 0.12, AnimRange = 140 })
+	end
+	-- tuyau courbe entre la cuve et la machine
+	for k = 0, 6 do
+		local t = k / 6
+		local p = tankAt:Lerp(mc * CF.new(3.2, 1.4, 0.6), t) * CF.new(0, math.sin(t * math.pi) * 1.4, 0)
+		lib.cyl(d, "Pipe", p.Position, 0.9, 0.85, P.white)
+	end
+	-- manomètre dont l'aiguille tourne
+	local gaugeAt = facing * CF.new(5.8, 6.4, 2.6)
+	lib.cyl(base, "Gauge", gaugeAt.Position, 0.4, 2, P.cream, M.SmoothPlastic, { CFrame = gaugeAt * CF.Angles(math.rad(90), 0, 0) })
+	local needle = lib.model("GaugeNeedle", base, "Atomic")
+	local nd = lib.block(needle, "Needle", gaugeAt * CF.new(0, 0.3, 0), V3.new(0.12, 0.8, 0.12), P.coral, M.SmoothPlastic)
+	needle.PrimaryPart = nd
+	lib.anim(needle, "Spin", { SpinSpeed = 25, SpinAxis = "Y", AnimRange = 120 })
+
+	-- CHEMINÉE sur le toit de la machine
+	lib.cyl(base, "Chimney", (mc * CF.new(2, 4.2, 1.9)).Position, 3, 1.6, P.white)
+	lib.cyl(d, "ChimneyCap", (mc * CF.new(2, 5.9, 1.9)).Position, 0.5, 2.3, accent)
+	for k = 1, 3 do
+		lib.ball(d, "Puff", (mc * CF.new(2 + rng(-0.4, 0.4), 6.6 + k * 0.9, 1.9 + rng(-0.4, 0.4))).Position, 0.8 + k * 0.2, P.white,
+			M.SmoothPlastic, { Transparency = 0.35 + k * 0.12 })
+	end
+
+	-- AUVENT rayé au-dessus de la façade + marche
+	for k = -3, 3 do
+		lib.block(base, "Awning", mc * CF.new(k * 0.9, 2.6, -3.9) * CF.Angles(math.rad(-28), 0, 0), V3.new(0.9, 0.3, 2.6),
+			if k % 2 == 0 then P.white else accent, M.Fabric, { TopSurface = E.SurfaceType.Smooth })
+	end
+	lib.block(d, "AwningEdge", mc * CF.new(0, 1.95, -5), V3.new(6.6, 0.35, 0.35), accent, M.SmoothPlastic)
+	lib.roundBox(base, "Step", facing * CF.new(0, 0.95, 0.3), V3.new(6, 0.7, 1.8), P.white, M.SmoothPlastic, 0.4)
+
+	-- rivets tout autour du corps
+	for k = -2, 2 do
+		for _, zs in { -1, 1 } do
+			lib.ball(d, "Rivet", (mc * CF.new(k * 1.2, 2.5, zs * 3.05)).Position, 0.3, P.white)
+		end
+	end
+
+	-- BOÎTE AUX LETTRES et petit panneau « chez moi »
+	lib.cyl(base, "MailPost", (facing * CF.new(8.4, 2, -5.5)).Position, 4, 0.5, P.white)
+	lib.roundBox(base, "Mailbox", facing * CF.new(8.4, 4.4, -5.5), V3.new(2.4, 1.6, 1.6), accent, M.SmoothPlastic, 0.6)
+	lib.blob(d, "MailFlag", facing * CF.new(9.5, 4.9, -5.5), V3.new(0.2, 1, 0.6), P.coral)
+
+	-- HAUT-PARLEUR et serviette près du tapis
+	lib.roundBox(base, "Speaker", facing * CF.new(-10, 1.8, -7.4), V3.new(1.8, 2.4, 1.6), P.plum, M.SmoothPlastic, 0.4)
+	for _, y in { 1.4, 2.4 } do
+		lib.cyl(td, "SpeakerCone", (facing * CF.new(-10, y, -8.25)).Position, 0.2, 1.2, P.white, M.SmoothPlastic,
+			{ CFrame = facing * CF.new(-10, y, -8.25) * CF.Angles(math.rad(90), 0, 0) })
+	end
+	lib.block(td, "Towel", facing * CF.new(-7, 4.1, 3.2) * CF.Angles(0.2, 0, 0), V3.new(2.4, 1.8, 0.2), P.pink, M.Fabric,
+		{ TopSurface = E.SurfaceType.Smooth })
+
 	-- fanion de la base qui se balance
 	local flag = lib.model("BaseFlag", base, "Atomic")
 	local pole = lib.cyl(flag, "Pole", (facing * CF.new(9.8, 4, 9.5)).Position, 8, 0.3, P.white)
@@ -353,6 +416,7 @@ function world.hub(hub, plan, ctx)
 	local _, title = lib.billboard(fountainBubble, UDim2.fromScale(26, 7), 8, "POPAINT", rgb(255, 240, 190), 250)
 	title.Name = "Title"
 	hubDecor.plaza(hub)
+	hubDecor.air(hub)
 	hubDecor.edge(hub, plan.hubSides)
 
 	-- 10 bases autour de la fontaine (les axes restent libres pour aller aux zones)
@@ -460,6 +524,7 @@ function world.zone(info, zonesFolder, gatesModel, hub, decor, ctx)
 	local trim = lib.model("Trim", zf)
 	local td = lib.details(trim)
 	local trimRng = lib.rng(777 + info.Index)
+	local edgeCells = 0
 	for _, e in shapes.edges(inMask, info.Sides) do
 		local i, j, di, dj = e[1], e[2], e[3], e[4]
 		local cx = info.MinX + (i - 0.5) * TILE + di * (TILE / 2 + 0.3)
@@ -474,7 +539,72 @@ function world.zone(info, zonesFolder, gatesModel, hub, decor, ctx)
 		end
 		lib.deco({ Name = "Strata", Size = if di == 0 then V3.new(TILE, 1.2, 0.3) else V3.new(0.3, 1.2, TILE),
 			CFrame = CF.new(cx - di * 0.15, -4.5, cz - dj * 0.15), Color = theme0.Layers[1], Material = M.SmoothPlastic, Parent = trim })
+		-- coulée de peinture de couleur, de temps en temps : on dirait que la zone déborde
+		if trimRng() < 0.1 then
+			local paint = lib.pick(trimRng, lib.CANDY)
+			lib.blob(trim, "PaintDrip", CF.new(cx, top - 2.4, cz), V3.new(1.4, 4 + trimRng(0, 3), 1.4), paint)
+			lib.ball(td, "PaintBlob", V3.new(cx, top - 5.5, cz), 1.5, paint)
+		end
+		edgeCells += 1
+		-- bornes et jardinières tout autour de l'île
+		if edgeCells % 9 == 0 then
+			local ox, oz = cx + di * 1.6, cz + dj * 1.6
+			if trimRng() < 0.55 then
+				lib.cyl(trim, "RimPost", V3.new(ox, top + 1.4, oz), 2.8, 0.7, P.white)
+				local lantern = lib.ball(trim, "RimLantern", V3.new(ox, top + 3.2, oz), 1.6, P.butter, M.Glass, { Transparency = 0.2 })
+				lib.light(lantern, P.butter, 10, 0.5)
+				lib.cyl(td, "RimCap", V3.new(ox, top + 4.1, oz), 0.4, 1.9, def.Color)
+			else
+				lib.cyl(trim, "Planter", V3.new(ox, top + 0.8, oz), 1.6, 2.6, P.cream)
+				lib.cyl(td, "PlanterRim", V3.new(ox, top + 1.5, oz), 0.4, 3, def.Color)
+				for b = 1, 4 do
+					local a = b / 4 * math.pi * 2
+					lib.ball(td, "PlanterFlower", V3.new(ox + math.cos(a) * 0.7, top + 2.1, oz + math.sin(a) * 0.7), 1, lib.pick(trimRng, lib.CANDY))
+				end
+			end
+		end
 	end
+
+	-- chemin balisé entre l'arrivée du pont et le centre de la zone
+	do
+		local from = V3.new(info.Bridge.EntranceX, 0, info.Bridge.EntranceZ)
+		local to = V3.new(info.CX, 0, info.CZ)
+		local dir = (to - from)
+		local len = dir.Magnitude
+		if len > 20 then
+			local unit = dir.Unit
+			local side = V3.new(-unit.Z, 0, unit.X)
+			local steps = math.floor((len - 24) / 13)
+			for k = 0, steps do
+				local along = 10 + k * 13
+				for _, sgn in { -1, 1 } do
+					local p = from + unit * along + side * (sgn * 8)
+					local i = math.floor((p.X - info.MinX) / TILE) + 1
+					local j = math.floor((p.Z - info.MinZ) / TILE) + 1
+					if inMask(i, j) then
+						local top = heightOf(i, j)
+						lib.cyl(trim, "PathPost", V3.new(p.X, top + 1.1, p.Z), 2.2, 0.5, P.white)
+						local lamp = lib.ball(trim, "PathLamp", V3.new(p.X, top + 2.5, p.Z), 1.2, def.Color, M.Glass, { Transparency = 0.25 })
+						lib.light(lamp, def.Color, 9, 0.45)
+						lib.ball(td, "PathTop", V3.new(p.X, top + 3.2, p.Z), 0.6, P.white)
+					end
+				end
+			end
+		end
+	end
+
+	-- rayon libre au centre de la zone (le trou où va la pièce centrale) : sert à ne jamais déborder
+	local freeR = math.huge
+	for i = 1, count do
+		for j = 1, count do
+			if inMask(i, j) then
+				local dx = info.MinX + (i - 0.5) * TILE - info.CX
+				local dz = info.MinZ + (j - 0.5) * TILE - info.CZ
+				freeR = math.min(freeR, math.sqrt(dx * dx + dz * dz))
+			end
+		end
+	end
+	info.FreeR = math.max(0, freeR - TILE * 0.8)
 
 	local builder = centerpieces[def.Centerpiece]
 	assert(builder, "pièce centrale inconnue : " .. tostring(def.Centerpiece))
@@ -559,21 +689,40 @@ function world.zone(info, zonesFolder, gatesModel, hub, decor, ctx)
 			if k % 2 == 0 then P.white else lib.tint(def.Color, 0.4), M.SmoothPlastic, 0.6)
 	end
 	lib.ball(ad, "ArchStar", (base * CF.new(0, 26, 0)).Position, 2.4, P.gold)
+	local pennants = lib.model("Pennants", ad, "Atomic")
 	for k = 1, 9 do
 		local x = -11 + (k - 1) * 2.75
 		local sag = math.sin((k - 1) / 8 * math.pi) * 2
-		local flag = lib.block(ad, "Pennant", base * CF.new(x, 15 - sag, 0) * CF.Angles(0, 0, math.rad(180)), V3.new(1.6, 1.8, 0.1),
+		local flag = lib.block(pennants, "Pennant", base * CF.new(x, 15 - sag, 0) * CF.Angles(0, 0, math.rad(180)), V3.new(1.6, 1.8, 0.1),
 			lib.CANDY[k % #lib.CANDY + 1], M.Fabric, { TopSurface = E.SurfaceType.Smooth })
 		local wm = lib.Instance.new("SpecialMesh")
 		wm.MeshType = E.MeshType.Wedge
 		wm.Parent = flag
+		if k == 5 then
+			pennants.PrimaryPart = flag
+		end
 	end
+	-- la guirlande ondule au vent
+	lib.anim(pennants, "Sway", { SwayAmp = 7, SwaySpeed = 1.3, AnimRange = 200 })
 	if def.Cost > 0 or def.Event then
 		local gate = lib.part({ Name = def.Id, Size = if b.AlongX then V3.new(1.5, 16, 24) else V3.new(24, 16, 1.5),
 			CFrame = CF.new(b.GateX, 8, b.GateZ), Color = def.Color, Material = M.ForceField,
 			CanCollide = false, -- le joueur voit le portail solide tant que la zone est fermée (src/Client/World.luau)
 			Parent = gatesModel })
 		gate:SetAttribute("Cost", def.Cost)
+		-- losanges de lumière douce qui pulsent le long du portail (cachés quand la zone est ouverte)
+		local glow = lib.model("GateGlow", gate, "Atomic")
+		local gdir = if b.AlongX then V3.new(0, 0, 1) else V3.new(1, 0, 0)
+		local gcenter = V3.new(b.GateX, 0, b.GateZ)
+		for k = -3, 3 do
+			local p = gcenter + gdir * (k * 3.2) + V3.new(0, 8 + (3 - math.abs(k)) * 1.4, 0)
+			local rune = lib.blob(glow, "Rune", CF.new(p) * CF.Angles(0, 0, math.rad(45)), V3.new(1.6, 2.4, 1.6), lib.tint(def.Color, 0.45),
+				M.SmoothPlastic, { Transparency = 0.25 })
+			if k == 0 then
+				glow.PrimaryPart = rune
+			end
+		end
+		lib.anim(glow, "Pulse,Bob", { PulseSpeed = 1.6, BobAmp = 0.6, BobSpeed = 1.2, AnimRange = 250 })
 		local text = if def.Event then def.Name else def.Name .. "\n🔒 " .. lib.formatCost(def.Cost)
 		local _, label = lib.billboard(gate, UDim2.fromScale(18, 5), 11, text, rgb(255, 255, 255), 160)
 		label.Name = "GateLabel"
@@ -609,6 +758,21 @@ function world.zone(info, zonesFolder, gatesModel, hub, decor, ctx)
 			props[name](inner, pos, rng, 0.9)
 			placed += 1
 		end
+	end
+
+	-- ambiance qui flotte dans l'air au-dessus de la zone (pétales, flocons, lucioles… voir themes.luau)
+	if theme.Air then
+		local air = lib.folder("Air", zf)
+		local box = lib.airBox(air, "AirBox", CF.new(info.CX, 34, info.CZ), V3.new(ZONE - 10, 2, ZONE - 10))
+		local down = theme.Air.Kind == "Petals" or theme.Air.Kind == "Snow" or theme.Air.Kind == "Leaves"
+		lib.particles(box, theme.Air.Kind, theme.Air.Colors, {
+			Rate = if down then 16 else 10,
+			Direction = if down then E.NormalId.Bottom else E.NormalId.Top,
+			Size = 1.6,
+		})
+		-- une deuxième nappe plus basse, au niveau du joueur
+		local low = lib.airBox(air, "AirBoxLow", CF.new(info.CX, 10, info.CZ), V3.new(ZONE - 30, 2, ZONE - 30))
+		lib.particles(low, theme.Air.Kind, theme.Air.Colors, { Rate = 6, Size = 1.1 })
 	end
 
 	-- brume légère au ras de l'eau autour de la zone
@@ -661,9 +825,11 @@ function world.eggs(eggsModel, content)
 					lib.tint(def.Color, 0.5))
 			end
 		end
-		-- l'œuf : coquille, bande en zigzag, pois et reflet
+		-- l'œuf : coquille, bande en zigzag, pois et reflet. Tout est dans "EggBody" pour qu'il tremble.
+		local body = lib.model("EggBody", egg, "Atomic")
 		local shell = lib.part({ Name = "Shell", Shape = E.PartType.Ball, Size = V3.new(6, 6, 6), CFrame = CF.new(pos + V3.new(0, 5, 0)),
-			Color = def.Platform, Material = M.SmoothPlastic, Parent = egg })
+			Color = def.Platform, Material = M.SmoothPlastic, Parent = body })
+		body.PrimaryPart = shell
 		local mesh = lib.Instance.new("SpecialMesh")
 		mesh.MeshType = E.MeshType.Sphere
 		mesh.Scale = V3.new(1, 1.3, 1)
@@ -671,16 +837,24 @@ function world.eggs(eggsModel, content)
 		for k = 1, 16 do
 			local a = k / 16 * math.pi * 2
 			local y = 5 + (if k % 2 == 0 then 0.5 else -0.5)
-			lib.block(egg, "Zigzag", CF.new(pos + V3.new(math.cos(a) * 2.92, y, math.sin(a) * 2.92)) * CF.Angles(0, -a, if k % 2 == 0 then 0.6 else -0.6),
+			lib.block(body, "Zigzag", CF.new(pos + V3.new(math.cos(a) * 2.92, y, math.sin(a) * 2.92)) * CF.Angles(0, -a, if k % 2 == 0 then 0.6 else -0.6),
 				V3.new(0.4, 1.4, 1.3), def.Color, M.SmoothPlastic, { TopSurface = E.SurfaceType.Smooth })
 		end
 		for s = 1, 6 do
 			local a = math.rad(s * 60 + 30)
 			local up = if s % 2 == 0 then 1.9 else -1.6
 			local r = math.sqrt(math.max(0, 1 - (up / 3.9) ^ 2)) * 2.95
-			lib.ball(egg, "Spot", pos + V3.new(math.cos(a) * r, 5 + up, math.sin(a) * r), 1.1, lib.CANDY[s], M.SmoothPlastic)
+			lib.ball(body, "Spot", pos + V3.new(math.cos(a) * r, 5 + up, math.sin(a) * r), 1.1, lib.CANDY[s], M.SmoothPlastic)
 		end
-		lib.blob(d, "Gloss", CF.new(pos + V3.new(-1.2, 6.8, -1.6)) * CF.Angles(0.3, 0.6, 0.4), V3.new(1, 1.8, 0.4), P.white, M.SmoothPlastic, { Transparency = 0.35 })
+		lib.blob(lib.details(body), "Gloss", CF.new(pos + V3.new(-1.2, 6.8, -1.6)) * CF.Angles(0.3, 0.6, 0.4), V3.new(1, 1.8, 0.4), P.white, M.SmoothPlastic,
+			{ Transparency = 0.35 })
+		-- l'œuf tremble de temps en temps : il est sur le point d'éclore
+		lib.anim(body, "Shake", { ShakePeriod = 5 + (k % 4) * 0.7, ShakeAmp = 6, AnimRange = 180 })
+		-- halo de magie et étincelles autour de l'œuf
+		local aura = lib.airBox(egg, "Aura", CF.new(pos + V3.new(0, 2.6, 0)), V3.new(7, 1, 7))
+		lib.particles(aura, "Aura", { def.Color, def.Platform }, { Rate = 5, Size = 1.1 })
+		local spark = lib.airBox(egg, "Magic", CF.new(pos + V3.new(0, 5, 0)), V3.new(6.5, 6.5, 6.5))
+		lib.particles(spark, "Sparkle", { P.white, def.Color }, { Rate = 8, Size = 1.1 })
 		-- étincelles qui tournent autour de l'œuf
 		local sparkles = lib.model("EggSparkles", egg, "Atomic")
 		local center = lib.deco({ Name = "Center", Size = V3.new(0.2, 0.2, 0.2), CFrame = CF.new(pos + V3.new(0, 5, 0)), Transparency = 1, Parent = sparkles })

@@ -3,6 +3,7 @@ local roblox = require("@lune/roblox")
 
 local Instance = roblox.Instance
 local Vector3 = roblox.Vector3
+local Vector2 = roblox.Vector2
 local CFrame = roblox.CFrame
 local Color3 = roblox.Color3
 local Enum = roblox.Enum
@@ -279,7 +280,85 @@ function lib.drips(parent, a, b, y, color, size, rng)
 	end
 end
 
--- Animation jouée chez les joueurs (voir src/Client/Animator.luau) : "Spin", "Bob", "Pulse", "Wobble"
+---------------------------------------------------------------- particules (ambiance et magie)
+-- Petits nuages de particules douces. Aucun fluo : LightEmission reste très bas.
+-- kind : "Petals" (pétales), "Soap" (bulles de savon), "Fireflies" (lucioles), "Snow" (flocons),
+--        "Dust" (poussière dorée), "Leaves" (feuilles), "Sparkle" (étincelles), "Aura" (halo qui monte)
+local SPARK = "rbxasset://textures/particles/sparkles_main.dds"
+local PUFF = "rbxasset://textures/particles/smoke_main.dds"
+
+local PARTICLE_KINDS = {
+	Petals = { Texture = SPARK, Rate = 14, Life = { 7, 11 }, Size = { 0.5, 0.9 }, Speed = { 1, 2.5 },
+		Accel = Vector3.new(1.2, -1.6, 0.6), Spin = { -60, 60 }, Spread = 180, Transparency = 0.25 },
+	Soap = { Texture = SPARK, Rate = 10, Life = { 6, 10 }, Size = { 0.7, 1.6 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0.4, 1.1, 0.2), Spin = { -20, 20 }, Spread = 60, Transparency = 0.4 },
+	Fireflies = { Texture = SPARK, Rate = 10, Life = { 5, 9 }, Size = { 0.35, 0.6 }, Speed = { 0.4, 1.4 },
+		Accel = Vector3.new(0.3, 0.3, -0.3), Spin = { -10, 10 }, Spread = 180, Transparency = 0.15 },
+	Snow = { Texture = SPARK, Rate = 18, Life = { 8, 12 }, Size = { 0.4, 0.8 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0.8, -2.2, -0.5), Spin = { -45, 45 }, Spread = 180, Transparency = 0.2 },
+	Dust = { Texture = SPARK, Rate = 12, Life = { 6, 10 }, Size = { 0.35, 0.7 }, Speed = { 0.6, 1.8 },
+		Accel = Vector3.new(0.2, 1, 0.2), Spin = { -30, 30 }, Spread = 180, Transparency = 0.3 },
+	Leaves = { Texture = SPARK, Rate = 12, Life = { 7, 11 }, Size = { 0.5, 1 }, Speed = { 1, 2.5 },
+		Accel = Vector3.new(1.6, -1.8, 1), Spin = { -90, 90 }, Spread = 180, Transparency = 0.2 },
+	Sparkle = { Texture = SPARK, Rate = 7, Life = { 1.2, 2 }, Size = { 0.3, 0.6 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0, 1.2, 0), Spin = { -40, 40 }, Spread = 180, Transparency = 0.15 },
+	Aura = { Texture = PUFF, Rate = 6, Life = { 1.6, 2.6 }, Size = { 1.4, 2.6 }, Speed = { 0.6, 1.4 },
+		Accel = Vector3.new(0, 1.6, 0), Spin = { -12, 12 }, Spread = 25, Transparency = 0.72 },
+}
+lib.PARTICLE_KINDS = PARTICLE_KINDS
+
+-- parent : la pièce qui émet. colors : une couleur ou une liste (dégradé). opts : { Rate, Size, Direction }
+function lib.particles(parent, kind, colors, opts)
+	local def = PARTICLE_KINDS[kind]
+	assert(def, "ambiance inconnue : " .. tostring(kind))
+	opts = opts or {}
+	local list = if colors.R ~= nil then { colors } else colors
+	local e = Instance.new("ParticleEmitter")
+	e.Name = kind
+	e.Texture = def.Texture
+	if #list == 1 then
+		e.Color = roblox.ColorSequence.new(list[1])
+	else
+		local keys = {}
+		for k, c in list do
+			table.insert(keys, roblox.ColorSequenceKeypoint.new((k - 1) / (#list - 1), c))
+		end
+		e.Color = roblox.ColorSequence.new(keys)
+	end
+	local scale = opts.Size or 1
+	e.Size = roblox.NumberSequence.new({
+		roblox.NumberSequenceKeypoint.new(0, def.Size[1] * scale),
+		roblox.NumberSequenceKeypoint.new(0.35, def.Size[2] * scale),
+		roblox.NumberSequenceKeypoint.new(1, 0),
+	})
+	e.Transparency = roblox.NumberSequence.new({
+		roblox.NumberSequenceKeypoint.new(0, 1),
+		roblox.NumberSequenceKeypoint.new(0.18, def.Transparency),
+		roblox.NumberSequenceKeypoint.new(0.8, def.Transparency),
+		roblox.NumberSequenceKeypoint.new(1, 1),
+	})
+	e.Lifetime = roblox.NumberRange.new(def.Life[1], def.Life[2])
+	e.Rate = opts.Rate or def.Rate
+	e.Speed = roblox.NumberRange.new(def.Speed[1], def.Speed[2])
+	e.Acceleration = def.Accel
+	e.Rotation = roblox.NumberRange.new(0, 360)
+	e.RotSpeed = roblox.NumberRange.new(def.Spin[1], def.Spin[2])
+	e.SpreadAngle = Vector2.new(def.Spread, def.Spread)
+	e.LightEmission = 0.12 -- jamais de fluo
+	e.LightInfluence = 0.7
+	e.Drag = 1.2
+	e.EmissionDirection = opts.Direction or Enum.NormalId.Top
+	e.Parent = parent
+	return e
+end
+
+-- Pièce invisible qui sert juste à poser des particules au-dessus d'une zone
+function lib.airBox(parent, name, cf, size)
+	return lib.deco({ Name = name, Size = size, CFrame = cf, Transparency = 1, Parent = parent })
+end
+
+-- Animation jouée chez les joueurs (voir src/Client/Animator.luau) :
+-- "Spin", "Bob", "Pulse", "Wobble", "Sway", "Drift", "Swim", "Blink", "Flow", "Hop", "Shake"
 function lib.anim(inst, kinds, attrs)
 	inst:SetAttribute("Anim", kinds)
 	for k, v in attrs or {} do

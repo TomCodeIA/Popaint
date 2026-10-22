@@ -1131,6 +1131,93 @@ function props.Kite(parent, pos, rng, s)
 	return m
 end
 
+---------------------------------------------------------------- petits habitants (0.8)
+-- Ils bougent tout seuls grâce à lib.anim (voir src/Client/Animator.luau).
+
+-- Oiseau rond qui tourne dans le ciel
+function props.Bird(parent, pos, rng, s)
+	local m = new("Bird", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.sky, P.white, P.pink, P.butter, P.lavender })
+	local y = (16 + rng(0, 14)) * s
+	local body = lib.blob(m, "Body", CF.new(at(pos, y)), V3.new(1.8, 1.6, 2.4) * s, c)
+	m.PrimaryPart = body
+	lib.blob(m, "Head", CF.new(at(pos, y + 0.8 * s) + V3.new(0, 0, -1 * s)), V3.new(1.3, 1.3, 1.3) * s, c)
+	lib.blob(d, "Beak", CF.new(at(pos, y + 0.7 * s) + V3.new(0, 0, -1.7 * s)), V3.new(0.4, 0.35, 0.6) * s, P.peach)
+	for _, x in { -1, 1 } do
+		lib.blob(m, "Wing", CF.new(at(pos, y + 0.2 * s)) * CF.new(x * 1.2 * s, 0, 0) * CF.Angles(0, 0, x * 0.5), V3.new(2, 0.25, 1.4) * s, tint(c, 0.25))
+		lib.ball(d, "Eye", at(pos, y + 1 * s) + V3.new(x * 0.4 * s, 0, -1.5 * s), 0.3 * s, P.ink)
+	end
+	lib.blob(m, "Tail", CF.new(at(pos, y + 0.3 * s) + V3.new(0, 0, 1.4 * s)) * CF.Angles(0.4, 0, 0), V3.new(1, 0.25, 1.2) * s, tint(c, 0.3))
+	lib.anim(m, "Swim,Bob", { SwimRadius = 10 + rng(0, 14), SwimSpeed = 0.25 + rng(0, 0.2), BobAmp = 1.6, BobSpeed = 0.9 + rng(0, 0.6),
+		AnimRange = 320 })
+	return m
+end
+
+-- Poisson qui saute hors de l'eau
+function props.Fish(parent, pos, rng, s)
+	local m = new("Fish", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.coral, P.butter, P.aqua, P.lilac })
+	local yaw = yawCF(V3.new(pos.X, lib.WATER + 0.4, pos.Z), rng)
+	local body = lib.blob(m, "Body", yaw, V3.new(1.5, 1.7, 2.6) * s, c)
+	m.PrimaryPart = body
+	lib.blob(m, "Tail", yaw * CF.new(0, 0.4 * s, 1.7 * s) * CF.Angles(-0.5, 0, 0), V3.new(0.3, 1.5, 1.3) * s, tint(c, 0.3))
+	lib.blob(m, "TopFin", yaw * CF.new(0, 1 * s, 0.2 * s), V3.new(0.25, 0.9, 1.2) * s, tint(c, 0.3))
+	for _, x in { -1, 1 } do
+		lib.blob(d, "SideFin", yaw * CF.new(x * 0.85 * s, -0.2 * s, 0) * CF.Angles(0, 0, x * 0.5), V3.new(0.2, 0.6, 0.9) * s, tint(c, 0.4))
+		lib.ball(d, "Eye", (yaw * CF.new(x * 0.5 * s, 0.35 * s, -1 * s)).Position, 0.34 * s, P.ink)
+		lib.ball(d, "Shine", (yaw * CF.new(x * 0.5 * s - 0.08 * s, 0.5 * s, -1.15 * s)).Position, 0.14 * s, P.white)
+	end
+	lib.anim(m, "Hop,Swim", { HopSpeed = 0.5 + rng(0, 0.3), HopHeight = 4 + rng(0, 2), SwimRadius = 3 + rng(0, 4), SwimSpeed = 0.3,
+		AnimRange = 220 })
+	return m
+end
+
+-- Lapin qui sautille
+function props.Rabbit(parent, pos, rng, s)
+	local m = new("Rabbit", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.white, P.cream, P.pink, P.lavender })
+	local yaw = yawCF(at(pos, 1.1 * s), rng)
+	local body = lib.blob(m, "Body", yaw, V3.new(1.8, 1.7, 2.2) * s, c)
+	m.PrimaryPart = body
+	local head = yaw * CF.new(0, 0.9 * s, -1 * s)
+	lib.ball(m, "Head", head.Position, 1.5 * s, c)
+	for _, x in { -1, 1 } do
+		lib.blob(m, "Ear", head * CF.new(x * 0.4 * s, 1.1 * s, 0.1 * s) * CF.Angles(0, 0, x * -0.2), V3.new(0.45, 1.6, 0.35) * s, c)
+		lib.blob(d, "EarIn", head * CF.new(x * 0.4 * s, 1.1 * s, -0.05 * s) * CF.Angles(0, 0, x * -0.2), V3.new(0.25, 1.1, 0.15) * s, P.rose)
+		lib.ball(d, "Eye", (head * CF.new(x * 0.5 * s, 0.1 * s, -0.75 * s)).Position, 0.3 * s, P.ink)
+		lib.blob(d, "Cheek", head * CF.new(x * 0.8 * s, -0.25 * s, -0.5 * s), V3.new(0.35, 0.2, 0.15) * s, P.rose)
+		lib.blob(d, "Paw", yaw * CF.new(x * 0.6 * s, -0.8 * s, -0.9 * s), V3.new(0.5, 0.35, 0.8) * s, tint(c, 0.15))
+	end
+	lib.ball(m, "Tail", (yaw * CF.new(0, 0.1 * s, 1.2 * s)).Position, 0.8 * s, P.white)
+	lib.anim(m, "Hop,Swim", { HopSpeed = 0.9 + rng(0, 0.5), HopHeight = 1.6, SwimRadius = 4 + rng(0, 5), SwimSpeed = 0.25 + rng(0, 0.2),
+		AnimRange = 200 })
+	return m
+end
+
+-- Petit crabe qui se déplace de côté
+function props.Crab(parent, pos, rng, s)
+	local m = new("Crab", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.coral, P.peach, P.rose })
+	local yaw = yawCF(at(pos, 0.7 * s), rng)
+	local body = lib.blob(m, "Shell", yaw, V3.new(2.2, 1.1, 1.8) * s, c)
+	m.PrimaryPart = body
+	for _, x in { -1, 1 } do
+		lib.ball(d, "EyeStalk", (yaw * CF.new(x * 0.45 * s, 0.7 * s, -0.5 * s)).Position, 0.3 * s, P.white)
+		lib.ball(d, "Eye", (yaw * CF.new(x * 0.45 * s, 0.95 * s, -0.5 * s)).Position, 0.26 * s, P.ink)
+		lib.blob(m, "Claw", yaw * CF.new(x * 1.4 * s, -0.1 * s, -0.6 * s) * CF.Angles(0, x * 0.4, 0), V3.new(0.9, 0.6, 0.7) * s, tint(c, 0.2))
+		for k = 0, 2 do
+			lib.blob(d, "Leg", yaw * CF.new(x * 1.05 * s, -0.4 * s, (k - 1) * 0.55 * s) * CF.Angles(0, 0, x * 0.6), V3.new(0.7, 0.18, 0.18) * s,
+				tint(c, 0.3))
+		end
+	end
+	lib.anim(m, "Drift,Bob", { DriftAmp = 3 + rng(0, 3), DriftSpeed = 0.5 + rng(0, 0.4), BobAmp = 0.25, BobSpeed = 3, AnimRange = 180 })
+	return m
+end
+
 ---------------------------------------------------------------- animations du décor
 -- Chaque objet reçoit ici ses animations (en plus de celles posées dans sa fonction).
 -- Elles ne sont jouées que près du joueur (src/Client/Animator.luau).
@@ -1183,12 +1270,14 @@ local function butterfly(parent, pos, rng, s)
 	return m
 end
 
+local CRITTER_ON = { FlowerBed = 0.3, Bush = 0.3, Tree = 0.2, Seashell = 0.5, Coral = 0.35, LilyPad = 0.3, Pine = 0.2 }
+local CRITTER_KIND = { FlowerBed = "Rabbit", Bush = "Rabbit", Tree = "Bird", Pine = "Bird", Seashell = "Crab", Coral = "Crab", LilyPad = "Fish" }
 local BUTTERFLY_ON = { Flower = 0.35, Tree = 0.3, Lollipop = 0.2, Mushroom = 0.25, Gumdrop = 0.15, FlowerBed = 0.5, Bush = 0.25 }
 
 for name, fn in props do
 	local a = ANIMS[name]
 	local bf = BUTTERFLY_ON[name]
-	if type(fn) == "function" and name ~= "Islet" and (a or bf) then
+	if type(fn) == "function" and name ~= "Islet" and (a or bf or CRITTER_ON[name]) then
 		props[name] = function(parent, pos, rng, s, ...)
 			local m = fn(parent, pos, rng, s, ...)
 			if a and m then
@@ -1198,6 +1287,15 @@ for name, fn in props do
 			end
 			if bf and rng() < bf then
 				butterfly(parent, pos, rng, s or 1)
+			end
+			local cr = CRITTER_ON[name]
+			if cr and rng() < cr then
+				local kind = CRITTER_KIND[name]
+				local maker = if kind then props[kind] else nil
+				if maker then
+					local a, dd = rng(0, math.pi * 2), rng(3, 7)
+					maker(parent, pos + V3.new(math.cos(a) * dd, 0, math.sin(a) * dd), rng, 0.9)
+				end
 			end
 			return m
 		end
