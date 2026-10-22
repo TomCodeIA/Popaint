@@ -159,6 +159,33 @@ function shapes.hills(seed, inMask)
 end
 
 -- Murs invisibles qui suivent le contour de la forme (sauf aux entrées)
+-- Bords extérieurs de la forme (pour le glaçage décoratif) : liste de { i, j, di, dj }
+-- (di, dj) = direction vers l'extérieur. Les arrivées de pont sont exclues.
+function shapes.edges(inMask, sides)
+	local out = {}
+	for i = 1, COUNT do
+		for j = 1, COUNT do
+			if inMask(i, j) then
+				local spanI = i >= SPAN_MIN and i <= SPAN_MAX
+				local spanJ = j >= SPAN_MIN and j <= SPAN_MAX
+				if not inMask(i, j - 1) and not (j == 1 and sides.N and spanI) then
+					table.insert(out, { i, j, 0, -1 })
+				end
+				if not inMask(i, j + 1) and not (j == COUNT and sides.S and spanI) then
+					table.insert(out, { i, j, 0, 1 })
+				end
+				if not inMask(i - 1, j) and not (i == 1 and sides.W and spanJ) then
+					table.insert(out, { i, j, -1, 0 })
+				end
+				if not inMask(i + 1, j) and not (i == COUNT and sides.E and spanJ) then
+					table.insert(out, { i, j, 1, 0 })
+				end
+			end
+		end
+	end
+	return out
+end
+
 function shapes.walls(ctx, id, minX, minZ, inMask, sides)
 	local TILE = lib.TILE
 	local H = lib.WALL_H

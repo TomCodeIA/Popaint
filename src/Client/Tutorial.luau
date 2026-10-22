@@ -130,7 +130,7 @@ function Tutorial.start()
 	beam.FaceCamera = true
 	beam.Width0 = 0.8
 	beam.Width1 = 0.8
-	beam.LightEmission = 1
+	beam.LightEmission = 0.25
 	beam.Transparency = NumberSequence.new(0.2)
 	beam.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Config.PaintPalette[1]),

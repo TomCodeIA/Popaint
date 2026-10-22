@@ -10,6 +10,7 @@
 -- joueur sont pris en charge dès qu'ils apparaissent, et oubliés quand ils disparaissent.
 
 local RunService = game:GetService("RunService")
+local Quality = require(script.Parent:WaitForChild("Quality")) :: any
 
 local Animator = {}
 
@@ -129,6 +130,7 @@ function Animator.start()
 		end
 		local camera = workspace.CurrentCamera
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
+		local scale = Quality.settings().AnimScale
 		for _, e in entries do
 			if recount and e.Inst:IsA("Model") then
 				inventory(e)
@@ -137,7 +139,7 @@ function Animator.start()
 			if not base or #e.Parts == 0 then
 				continue
 			end
-			if (base.Position - eye).Magnitude > e.Range then
+			if (base.Position - eye).Magnitude > e.Range * scale then
 				continue
 			end
 			local inst = e.Inst

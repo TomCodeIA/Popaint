@@ -523,6 +523,7 @@ emit([[
 declare game: PopaintDataModel
 declare workspace: Workspace
 declare script: any
+declare function UserSettings(): any
 declare plugin: any
 declare shared: any
 declare function warn(...: any): ()

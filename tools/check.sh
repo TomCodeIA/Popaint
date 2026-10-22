@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Popaint : vérification complète AVANT de livrer une version.
-#   1. génère les types Roblox   2. analyse tout le code   3. construit build/Popaint.rbxlx
+#   1. génère les types Roblox   2. analyse tout le code   3. construit build/Popaint.rbxl
 #   4. tests du contenu et de la map   5. serveur simulé (tous les systèmes du jeu)
 # Tout doit être vert. Usage : tools/check.sh            (tools/check.sh --quick saute le serveur simulé)
 set -euo pipefail
@@ -20,4 +20,4 @@ if [ "${1:-}" != "--quick" ]; then
   echo "== 5/5 serveur simulé (quelques minutes)"
   $LUNE run tests/integration.luau | tail -n 3
 fi
-echo "TOUT EST VERT : build/Popaint.rbxlx est prêt."
+echo "TOUT EST VERT : build/Popaint.rbxl est prêt."

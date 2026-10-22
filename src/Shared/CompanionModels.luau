@@ -85,7 +85,7 @@ local function buildBody(m: Model, body: string, color: Color3, accent: Color3):
 	elseif body == "Gem" then
 		local b = part(m, "Body", o * CFrame.Angles(0, math.rad(45), math.rad(45)), Vector3.new(1.7, 1.7, 1.7), color, nil, Enum.Material.Glass)
 		b:SetAttribute("Main", true)
-		part(m, "Core", o, Vector3.new(1, 1, 1), tint(color, 0.5), "ball", Enum.Material.Neon)
+		part(m, "Core", o, Vector3.new(1, 1, 1), tint(color, 0.5), "ball", Enum.Material.SmoothPlastic)
 		return { Size = Vector3.new(2.4, 2.4, 2.4), Face = o * CFrame.new(0, 0.1, -1.05), Top = 1.2, Feet = true }
 	elseif body == "Ghost" then
 		local b = part(m, "Body", o, Vector3.new(2.1, 2.5, 2.1), color, "blob")
@@ -142,11 +142,18 @@ local function buildBody(m: Model, body: string, color: Color3, accent: Color3):
 	return { Size = b.Size, Face = o * CFrame.new(0, 0.3, -1.0), Top = 1.1, Feet = true }
 end
 
-local function buildFace(m: Model, cf: CFrame)
+local function buildFace(m: Model, cf: CFrame, accent: Color3)
 	for _, x in { -1, 1 } do
+		-- œil : pupille, iris coloré en bas, deux reflets ; joue rose avec petits traits
 		part(m, "Eye", cf * CFrame.new(x * 0.36, 0.05, 0), Vector3.new(0.3, 0.42, 0.2), INK, "blob")
+		part(m, "Iris", cf * CFrame.new(x * 0.36, -0.06, -0.06), Vector3.new(0.2, 0.16, 0.12), accent:Lerp(INK, 0.35), "blob")
 		part(m, "Shine", cf * CFrame.new(x * 0.36 - 0.06, 0.16, -0.08), Vector3.new(0.12, 0.12, 0.12), WHITE, "ball")
+		part(m, "Shine2", cf * CFrame.new(x * 0.36 + 0.06, -0.05, -0.09), Vector3.new(0.06, 0.06, 0.06), WHITE, "ball")
 		part(m, "Blush", cf * CFrame.new(x * 0.62, -0.18, 0.04), Vector3.new(0.3, 0.16, 0.1), BLUSH, "blob")
+		for k = 0, 1 do
+			part(m, "BlushLine", cf * CFrame.new(x * (0.58 + k * 0.08), -0.18, -0.02) * CFrame.Angles(0, 0, 0.4),
+				Vector3.new(0.03, 0.09, 0.03), WHITE:Lerp(BLUSH, 0.3))
+		end
 	end
 	for k = -1, 1 do
 		part(m, "Mouth", cf * CFrame.new(k * 0.09, -0.2 - (if k == 0 then 0.04 else 0), -0.02), Vector3.new(0.09, 0.09, 0.09), INK, "ball")
@@ -189,7 +196,7 @@ end
 EXTRAS.Antennae = function(m, b, _c, a)
 	for _, x in { -1, 1 } do
 		part(m, "Stalk", CFrame.new(x * 0.35, b.Top + 0.3, 0) * CFrame.Angles(0, 0, x * -0.3), Vector3.new(0.08, 0.7, 0.08), INK)
-		part(m, "Tip", CFrame.new(x * 0.55, b.Top + 0.65, 0), Vector3.new(0.3, 0.3, 0.3), a, "ball", Enum.Material.Neon)
+		part(m, "Tip", CFrame.new(x * 0.55, b.Top + 0.65, 0), Vector3.new(0.3, 0.3, 0.3), a, "ball", Enum.Material.SmoothPlastic)
 	end
 end
 EXTRAS.Wings = function(m, b, _c, a)
@@ -234,7 +241,7 @@ EXTRAS.Crown = function(m, b, _c, _a)
 		local ang = k / 5 * math.pi * 2
 		part(m, "CrownPoint", CFrame.new(math.cos(ang) * 0.38, b.Top + 0.3, math.sin(ang) * 0.38), Vector3.new(0.18, 0.3, 0.18), GOLD, "blob")
 	end
-	part(m, "Jewel", CFrame.new(0, b.Top + 0.08, -0.45), Vector3.new(0.16, 0.16, 0.16), BLUSH, "ball", Enum.Material.Neon)
+	part(m, "Jewel", CFrame.new(0, b.Top + 0.08, -0.45), Vector3.new(0.16, 0.16, 0.16), BLUSH, "ball", Enum.Material.SmoothPlastic)
 end
 EXTRAS.Bow = function(m, b, _c, a)
 	local cf = CFrame.new(0.45, b.Top - 0.05, -0.1)
@@ -246,12 +253,12 @@ end
 EXTRAS.Halo = function(m, b, _c, _a)
 	for k = 1, 12 do
 		local ang = k / 12 * math.pi * 2
-		part(m, "Halo", CFrame.new(math.cos(ang) * 0.6, b.Top + 0.55, math.sin(ang) * 0.6), Vector3.new(0.2, 0.2, 0.2), GOLD, "ball", Enum.Material.Neon)
+		part(m, "Halo", CFrame.new(math.cos(ang) * 0.6, b.Top + 0.55, math.sin(ang) * 0.6), Vector3.new(0.2, 0.2, 0.2), GOLD, "ball", Enum.Material.SmoothPlastic)
 	end
 end
 EXTRAS.Flame = function(m, b, _c, _a)
 	part(m, "Wick", CFrame.new(0, b.Top + 0.1, 0), Vector3.new(0.08, 0.3, 0.08), INK)
-	part(m, "Flame", CFrame.new(0, b.Top + 0.45, 0), Vector3.new(0.35, 0.6, 0.35), Color3.fromRGB(255, 236, 170), "blob", Enum.Material.Neon)
+	part(m, "Flame", CFrame.new(0, b.Top + 0.45, 0), Vector3.new(0.35, 0.6, 0.35), Color3.fromRGB(255, 236, 170), "blob", Enum.Material.SmoothPlastic)
 end
 EXTRAS.Spikes = function(m, b, _c, a)
 	for k = 0, 3 do
@@ -274,12 +281,12 @@ EXTRAS.Dots = function(m, b, _c, a)
 end
 EXTRAS.Bolt = function(m, b, _c, _a)
 	local cf = CFrame.new(0, b.Top + 0.35, 0)
-	part(m, "Bolt", cf * CFrame.Angles(0, 0, 0.5), Vector3.new(0.18, 0.5, 0.12), GOLD, nil, Enum.Material.Neon)
-	part(m, "Bolt", cf * CFrame.new(0.12, -0.3, 0) * CFrame.Angles(0, 0, -0.5), Vector3.new(0.18, 0.45, 0.12), GOLD, nil, Enum.Material.Neon)
+	part(m, "Bolt", cf * CFrame.Angles(0, 0, 0.5), Vector3.new(0.18, 0.5, 0.12), GOLD, nil, Enum.Material.SmoothPlastic)
+	part(m, "Bolt", cf * CFrame.new(0.12, -0.3, 0) * CFrame.Angles(0, 0, -0.5), Vector3.new(0.18, 0.45, 0.12), GOLD, nil, Enum.Material.SmoothPlastic)
 end
 EXTRAS.Bulb = function(m, b, _c, a)
 	part(m, "Socket", CFrame.new(0, b.Top + 0.1, 0) * CFrame.Angles(0, 0, math.rad(90)), Vector3.new(0.3, 0.45, 0.45), Color3.fromRGB(200, 200, 215), "cyl")
-	part(m, "Bulb", CFrame.new(0, b.Top + 0.5, 0), Vector3.new(0.6, 0.6, 0.6), tint(a, 0.4), "ball", Enum.Material.Neon)
+	part(m, "Bulb", CFrame.new(0, b.Top + 0.5, 0), Vector3.new(0.6, 0.6, 0.6), tint(a, 0.4), "ball", Enum.Material.SmoothPlastic)
 end
 EXTRAS.Cherry = function(m, b, _c, _a)
 	part(m, "Cherry", CFrame.new(0, b.Top + 0.2, 0), Vector3.new(0.5, 0.5, 0.5), Color3.fromRGB(255, 160, 160), "ball")
@@ -307,10 +314,24 @@ function CompanionModels.build(row: any, tier: number?): Model
 		accent = GOLD
 	end
 	local info = buildBody(m, look.Body or "Round", color, accent)
-	buildFace(m, info.Face)
+	buildFace(m, info.Face, accent)
+	-- reflet brillant sur le corps (aspect plus rond et plus doux)
+	local gloss = part(m, "Gloss", CFrame.new(-info.Size.X * 0.22, info.Size.Y * 0.26, -info.Size.Z * 0.3) * CFrame.Angles(0.4, 0.5, 0.5),
+		Vector3.new(info.Size.X * 0.22, info.Size.Y * 0.14, 0.12), WHITE, "blob")
+	gloss.Transparency = 0.45
 	if info.Feet then
 		for _, x in { -1, 1 } do
-			part(m, "Foot", CFrame.new(x * 0.45, -info.Size.Y / 2 + 0.05, -0.25), Vector3.new(0.55, 0.32, 0.7), tint(accent, 0.1), "blob")
+			local foot = CFrame.new(x * 0.45, -info.Size.Y / 2 + 0.05, -0.25)
+			part(m, "Foot", foot, Vector3.new(0.55, 0.32, 0.7), tint(accent, 0.1), "blob")
+			-- petits orteils
+			for t = -1, 1 do
+				part(m, "Toe", foot * CFrame.new(t * 0.15, 0.02, -0.32), Vector3.new(0.14, 0.14, 0.14), tint(accent, 0.25), "ball")
+			end
+		end
+		-- petites mains qui dépassent sur les côtés (elles font coucou chez le joueur)
+		for _, x in { -1, 1 } do
+			part(m, "Hand", CFrame.new(x * info.Size.X * 0.47, -info.Size.Y * 0.12, -info.Size.Z * 0.18) * CFrame.Angles(0, 0, x * 0.5),
+				Vector3.new(0.3, 0.46, 0.34), tint(color, 0.08), "blob")
 		end
 	end
 	local extras: { string } = look.Extras or {}
@@ -340,7 +361,7 @@ function CompanionModels.build(row: any, tier: number?): Model
 		sparkle.Rate = if tierN == 2 then 10 else 5
 		sparkle.Speed = NumberRange.new(0.5, 1.5)
 		sparkle.SpreadAngle = Vector2.new(180, 180)
-		sparkle.LightEmission = 0.6
+		sparkle.LightEmission = 0.2
 		if body then
 			sparkle.Parent = body
 		end

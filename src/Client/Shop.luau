@@ -158,7 +158,7 @@ function Shop.start()
 			Name = "Level",
 			Size = UDim2.new(0.3, 0, 0, 22),
 			Position = UDim2.new(0.42, 0, 0, 10),
-			TextColor3 = Color3.fromRGB(255, 245, 140),
+			TextColor3 = Color3.fromRGB(255, 240, 190),
 			ZIndex = 12,
 		})
 		local buy = Ui.button(row, "", Ui.Green, function()

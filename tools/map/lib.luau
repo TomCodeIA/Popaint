@@ -49,14 +49,11 @@ lib.P = {
 	plum = lib.rgb(150, 120, 172), -- contraste doux (yeux, ombres, troncs)
 	cocoa = lib.rgb(176, 132, 110),
 	ink = lib.rgb(84, 64, 104),
-	gold = lib.rgb(255, 208, 90), -- touche vive : pièces, récompenses
+	gold = lib.rgb(255, 210, 120), -- doré doux : pièces, récompenses
 }
 lib.RAINBOW = { lib.P.pink, lib.P.butter, lib.P.mint, lib.P.sky, lib.P.lavender }
 lib.CANDY = { lib.P.pink, lib.P.sky, lib.P.butter, lib.P.mint, lib.P.lavender, lib.P.peach, lib.P.aqua, lib.P.lilac }
--- Arc-en-ciel vif : seulement pour les moments forts (Rainbow Storm, récompenses)
-lib.VIVID = {
-	lib.rgb(255, 92, 168), lib.rgb(255, 214, 64), lib.rgb(120, 255, 140), lib.rgb(82, 215, 255), lib.rgb(186, 120, 255),
-}
+-- Aucun fluo dans le jeu : pas de matériau Neon, pas de couleurs fluo (un test le vérifie).
 
 -- Couleur éclaircie (k = 0 : identique, 1 : blanc) et assombrie
 function lib.tint(c, k)
@@ -241,6 +238,45 @@ function lib.glow(part, color, range)
 	part.Material = Enum.Material.SmoothPlastic
 	local l = lib.light(part, color or part.Color, range or 10, 0.6)
 	return l
+end
+
+-- Boîte aux coins arrondis (arêtes verticales arrondies) : 2 blocs en croix + 4 cylindres aux coins.
+-- r = rayon de l'arrondi. Renvoie le bloc principal.
+function lib.roundBox(parent, name, cf, size, color, material, r, extra)
+	r = math.min(r or 0.6, size.X / 2 - 0.05, size.Z / 2 - 0.05)
+	local main = lib.block(parent, name, cf, Vector3.new(size.X - r * 2, size.Y, size.Z), color, material, extra)
+	lib.block(parent, name, cf, Vector3.new(size.X, size.Y, size.Z - r * 2), color, material, extra)
+	for _, sx in { -1, 1 } do
+		for _, sz in { -1, 1 } do
+			local props = {
+				Name = name .. "Edge",
+				Shape = Enum.PartType.Cylinder,
+				Size = Vector3.new(size.Y, r * 2, r * 2),
+				CFrame = cf * CFrame.new(sx * (size.X / 2 - r), 0, sz * (size.Z / 2 - r)) * CFrame.Angles(0, 0, math.rad(90)),
+				Color = color,
+				Material = material or Enum.Material.Plastic,
+				Parent = parent,
+			}
+			for k, v in extra or {} do
+				if k ~= "TopSurface" then
+					props[k] = v
+				end
+			end
+			lib.deco(props)
+		end
+	end
+	return main
+end
+
+-- Rangée de petites boules « glaçage » qui coulent le long d'un bord (de a à b, hauteur y)
+function lib.drips(parent, a, b, y, color, size, rng)
+	local len = (b - a).Magnitude
+	local n = math.max(1, math.floor(len / (size * 1.1)))
+	for k = 0, n do
+		local p = a:Lerp(b, k / n)
+		local long = if rng then rng(0.8, 1.9) else 1.2
+		lib.blob(parent, "Drip", CFrame.new(p.X, y - size * long * 0.35, p.Z), Vector3.new(size, size * long, size), color)
+	end
 end
 
 -- Animation jouée chez les joueurs (voir src/Client/Animator.luau) : "Spin", "Bob", "Pulse", "Wobble"

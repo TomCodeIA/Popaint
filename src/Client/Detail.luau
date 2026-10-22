@@ -1,12 +1,14 @@
 --!strict
 -- Popaint : affiche les petits détails du décor seulement de près (comme une « distance de rendu »).
 -- Chaque objet de la map peut avoir un sous-modèle "Details" (voir tools/map/lib.luau : lib.details) :
--- ses pièces sont cachées chez le joueur au-delà de DETAIL_DISTANCE, ce qui garde le jeu fluide sur téléphone.
+-- ses pièces sont cachées chez le joueur au-delà d'une distance qui dépend de la qualité, ce qui garde le jeu fluide sur téléphone.
 
 local RunService = game:GetService("RunService")
+local Quality = require(script.Parent:WaitForChild("Quality")) :: any
 
 local Detail = {}
 
+-- la distance dépend de la qualité (src/Client/Quality.luau)
 local DETAIL_DISTANCE = 140
 local HYSTERESIS = 12 -- évite le clignotement à la limite
 
@@ -86,6 +88,7 @@ function Detail.start()
 			return
 		end
 		local eye = camera.CFrame.Position
+		DETAIL_DISTANCE = Quality.settings().DetailDistance
 		for _ = 1, math.min(PER_FRAME, #list) do
 			if cursor > #list then
 				cursor = 1

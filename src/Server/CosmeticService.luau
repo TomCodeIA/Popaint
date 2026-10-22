@@ -62,7 +62,7 @@ function CosmeticService.apply(player: Player)
 	trail.Attachment1 = bottom
 	trail.Color = sequence(def.Colors)
 	trail.Lifetime = 0.7
-	trail.LightEmission = 0.6
+	trail.LightEmission = 0.15
 	trail.FaceCamera = true
 	trail.Transparency = NumberSequence.new(0.1, 1)
 	trail.WidthScale = NumberSequence.new(1, 0.2)

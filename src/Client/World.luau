@@ -119,7 +119,7 @@ function World.start()
 			if active then
 				local hue = (os.clock() * 0.15) % 1
 				c.TintColor = Color3.fromHSV(hue, 0.12, 1)
-				c.Saturation = baseSat + 0.4 -- la tempête arc-en-ciel reste vive
+				c.Saturation = baseSat + 0.15 -- la tempête colore un peu plus, sans fluo
 			elseif wasActive then
 				c.TintColor = Color3.fromRGB(255, 248, 255)
 				c.Saturation = baseSat

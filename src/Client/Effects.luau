@@ -58,7 +58,7 @@ function Effects.burst(position: Vector3, color: Color3, amount: number, speed: 
 	holder.CFrame = CFrame.new(position)
 	local emitter = Instance.new("ParticleEmitter")
 	emitter.Color = ColorSequence.new(color, Color3.new(1, 1, 1))
-	emitter.LightEmission = 0.7
+	emitter.LightEmission = 0.2
 	emitter.Size = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1.1),
 		NumberSequenceKeypoint.new(1, 0),

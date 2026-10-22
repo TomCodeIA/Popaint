@@ -1,4 +1,4 @@
--- Popaint : génère le fichier de jeu Popaint.rbxlx (map + scripts) avec Lune.
+-- Popaint : génère le fichier de jeu Popaint.rbxl (map + scripts) avec Lune.
 -- Usage : lune run tools/build.luau
 
 local fs = require("@lune/fs")
@@ -12,7 +12,7 @@ local Color3 = roblox.Color3
 local Enum = roblox.Enum
 
 local SRC = "src"
-local OUT = process.args[1] or "build/Popaint.rbxlx"
+local OUT = process.args[1] or "build/Popaint.rbxl"
 
 local game = Instance.new("DataModel")
 local Workspace = game:GetService("Workspace")
@@ -149,6 +149,11 @@ atmo.Parent = Lighting
 
 ---------------------------------------------------------------- export
 fs.writeDir("build")
-local file = roblox.serializePlace(game, true)
+-- format binaire .rbxl : ~70 fois plus léger que le XML (.rbxlx), Studio l'ouvre bien plus vite
+local file = roblox.serializePlace(game, false)
+-- ancien fichier XML éventuel : on le retire pour ne pas livrer une vieille version par erreur
+if fs.isFile("build/Popaint.rbxlx") then
+	fs.removeFile("build/Popaint.rbxlx")
+end
 fs.writeFile(OUT, file)
 print(("OK : %s (%d octets)"):format(OUT, #file))

@@ -15,6 +15,7 @@ local State = require(script.Parent:WaitForChild("State")) :: any
 local Hud = require(script.Parent:WaitForChild("Hud")) :: any
 local Effects = require(script.Parent:WaitForChild("Effects")) :: any
 local CompanionModels = require(Shared:WaitForChild("CompanionModels")) :: any
+local Quality = require(script.Parent:WaitForChild("Quality")) :: any
 
 local Pets = {}
 
@@ -333,7 +334,8 @@ local KIND = {
 	Wing = "Flap", Feather = "Flap", WingTip = "Flap",
 	Ear = "Wiggle", EarIn = "Wiggle", Stalk = "Wiggle", Tip = "Wiggle",
 	Tail = "Wag", TailFin = "Wag",
-	Eye = "Blink", Shine = "Blink",
+	Eye = "Blink", Shine = "Blink", Iris = "Blink", Shine2 = "Blink",
+	Hand = "Wave",
 	Flame = "Flicker", Halo = "Halo", Bulb = "Glow",
 }
 
@@ -352,6 +354,13 @@ local function makeFollower(id: string, tier: number, at: Vector3): Follower?
 				Side = if rel.Position.X < -0.05 then -1 elseif rel.Position.X > 0.05 then 1 else 0,
 				Size = p.Size, Color = p.Color,
 			})
+		end
+	end
+	if not Quality.settings().Particles then
+		for _, d in model:GetDescendants() do
+			if d:IsA("ParticleEmitter") then
+				(d :: ParticleEmitter).Enabled = false
+			end
 		end
 	end
 	model:PivotTo(CFrame.new(at))
@@ -392,7 +401,10 @@ local function rebuildFollowers(p: Player)
 end
 
 -- Anime un compagnon : sautille en marchant, flotte à l'arrêt, cligne des yeux, bat des ailes…
-local NEAR = 120 -- au-delà, on ne déplace que le modèle entier (économie pour les téléphones)
+-- au-delà de cette distance (selon la qualité), on ne déplace que le modèle entier
+local function nearDistance(): number
+	return Quality.settings().PetDetail
+end
 local function animate(f: Follower, look: CFrame, now: number, speed: number, near: boolean)
 	local t = now + f.Phase
 	local moving = math.clamp(speed / 14, 0, 1)
@@ -421,6 +433,11 @@ local function animate(f: Follower, look: CFrame, now: number, speed: number, ne
 		elseif kind == "Wiggle" then
 			pc.Part.CFrame = cf * CFrame.new(0, ry, 0) * CFrame.Angles(0, 0, math.sin(t * 6 + pc.Side) * 0.12)
 				* CFrame.new(0, -ry, 0) * relSq
+		elseif kind == "Wave" then
+			-- les mains se balancent en marchant, font coucou à l'arrêt
+			local swing = if moving > 0.3 then math.sin(t * 9 + pc.Side) * 0.5 else math.max(0, math.sin(t * 1.3)) * math.sin(t * 14) * 0.6
+			pc.Part.CFrame = cf * CFrame.new(rx, ry + 0.2, rz) * CFrame.Angles(swing, 0, pc.Side * (0.2 + math.abs(swing) * 0.6))
+				* CFrame.new(0, -0.2, 0) * (rel - rel.Position)
 		elseif kind == "Wag" then
 			pc.Part.CFrame = cf * CFrame.Angles(0, math.sin(t * 12) * 0.35, 0) * relSq
 		elseif kind == "Halo" then
@@ -551,7 +568,7 @@ function Pets.start()
 			local root = character and character:FindFirstChild("HumanoidRootPart")
 			if root and root:IsA("BasePart") then
 				local rootCF = (root :: BasePart).CFrame
-				local near = (rootCF.Position - eye).Magnitude < NEAR
+				local near = (rootCF.Position - eye).Magnitude < nearDistance()
 				for i, f in list do
 					local side = (i - (#list + 1) / 2) * 3.4
 					local target = (rootCF * CFrame.new(side, 1.2, 4.8)).Position

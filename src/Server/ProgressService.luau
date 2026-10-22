@@ -17,11 +17,11 @@ local ProgressService = {}
 
 local TIER_COLORS: { { any } } = {
 	{ 1, Color3.fromRGB(255, 255, 255) },
-	{ 10, Color3.fromRGB(120, 255, 140) },
-	{ 25, Color3.fromRGB(82, 180, 255) },
-	{ 50, Color3.fromRGB(186, 120, 255) },
-	{ 100, Color3.fromRGB(255, 210, 60) },
-	{ 200, Color3.fromRGB(255, 92, 168) }, -- arc-en-ciel animé côté client
+	{ 10, Color3.fromRGB(160, 236, 180) },
+	{ 25, Color3.fromRGB(150, 206, 252) },
+	{ 50, Color3.fromRGB(200, 172, 252) },
+	{ 100, Color3.fromRGB(255, 214, 120) },
+	{ 200, Color3.fromRGB(255, 166, 206) }, -- arc-en-ciel animé côté client
 }
 
 local function levelColor(level: number): Color3

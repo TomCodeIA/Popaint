@@ -32,6 +32,9 @@ local function safeStart(name: string, fn: () -> ())
 	end
 end
 
+safeStart("Quality", function()
+	load("Quality").start()
+end)
 safeStart("Hud", Hud.start)
 for _, name in { "Shop", "Pets", "Daily", "MiniMap", "Tutorial", "World", "Treadmill", "Animator", "Detail", "Juice" } do
 	safeStart(name, function()
@@ -45,7 +48,7 @@ Bubbles.onPopped(function(tiles: number, coins: number, position: Vector3, color
 		if kind == "high" then
 			text ..= " x2"
 		end
-		Effects.floatingText(position + Vector3.new(0, 1.5, 0), text, Color3.fromRGB(255, 236, 90),
+		Effects.floatingText(position + Vector3.new(0, 1.5, 0), text, Color3.fromRGB(255, 222, 140),
 			if isAuto then 0.7 elseif kind == "high" then 1.4 else 1.1)
 		Hud.coinsGained(coins, if isAuto then nil else position)
 	end

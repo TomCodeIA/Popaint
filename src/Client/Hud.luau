@@ -61,11 +61,11 @@ local function buildCoins()
 	})
 	Ui.corner(coinsPill, UDim.new(1, 0))
 	Ui.stroke(coinsPill, 4)
-	Ui.gradient(coinsPill, Color3.fromRGB(255, 248, 170), Color3.fromRGB(255, 185, 60))
+	Ui.gradient(coinsPill, Color3.fromRGB(255, 248, 210), Color3.fromRGB(255, 206, 120))
 	coinIcon = Ui.frame(coinsPill, {
 		Size = UDim2.fromOffset(52, 52),
 		Position = UDim2.fromOffset(7, 7),
-		BackgroundColor3 = Color3.fromRGB(255, 205, 40),
+		BackgroundColor3 = Color3.fromRGB(255, 208, 110),
 	})
 	Ui.corner(coinIcon, UDim.new(1, 0))
 	Ui.stroke(coinIcon, 3)
@@ -82,7 +82,7 @@ local function buildCoins()
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 82),
 		Size = UDim2.fromOffset(240, 26),
-		BackgroundColor3 = Color3.fromRGB(70, 45, 110),
+		BackgroundColor3 = Color3.fromRGB(120, 100, 150),
 	})
 	Ui.corner(levelBar, UDim.new(1, 0))
 	Ui.stroke(levelBar, 3)
@@ -91,7 +91,7 @@ local function buildCoins()
 		BackgroundColor3 = Ui.White,
 	})
 	Ui.corner(levelFill, UDim.new(1, 0))
-	Ui.gradient(levelFill, Color3.fromRGB(140, 255, 160), Color3.fromRGB(60, 200, 120))
+	Ui.gradient(levelFill, Color3.fromRGB(190, 244, 200), Color3.fromRGB(130, 210, 160))
 	levelBadge = Ui.label(levelBar, t("Level", { n = 1 }), {
 		Size = UDim2.new(1, 0, 1, 0),
 		ZIndex = 3,
@@ -107,7 +107,7 @@ local function buildChips()
 	})
 	Ui.corner(stormChip, UDim.new(1, 0))
 	Ui.stroke(stormChip, 3)
-	local g = Ui.gradient(stormChip, Color3.fromRGB(190, 150, 255), Color3.fromRGB(130, 90, 230))
+	local g = Ui.gradient(stormChip, Color3.fromRGB(214, 196, 255), Color3.fromRGB(170, 146, 236))
 	g.Name = "Gradient"
 	stormLabel = Ui.label(stormChip, "", { Size = UDim2.new(1, -20, 0.72, 0), Position = UDim2.new(0, 10, 0.14, 0) })
 
@@ -120,7 +120,7 @@ local function buildChips()
 	})
 	Ui.corner(boostChip, UDim.new(1, 0))
 	Ui.stroke(boostChip, 3)
-	Ui.gradient(boostChip, Color3.fromRGB(255, 240, 120), Color3.fromRGB(255, 170, 40))
+	Ui.gradient(boostChip, Color3.fromRGB(255, 240, 180), Color3.fromRGB(255, 200, 120))
 	boostLabel = Ui.label(boostChip, "", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 
 	local speedChip = Ui.frame(gui, {
@@ -131,7 +131,7 @@ local function buildChips()
 	})
 	Ui.corner(speedChip, UDim.new(1, 0))
 	Ui.stroke(speedChip, 3)
-	Ui.gradient(speedChip, Color3.fromRGB(150, 255, 230), Color3.fromRGB(60, 210, 170))
+	Ui.gradient(speedChip, Color3.fromRGB(190, 246, 232), Color3.fromRGB(120, 210, 190))
 	speedLabel = Ui.label(speedChip, "👟 16", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 
 	eventChip = Ui.frame(gui, {
@@ -143,7 +143,7 @@ local function buildChips()
 	})
 	Ui.corner(eventChip, UDim.new(1, 0))
 	Ui.stroke(eventChip, 3)
-	Ui.gradient(eventChip, Color3.fromRGB(255, 180, 90), Color3.fromRGB(150, 70, 200))
+	Ui.gradient(eventChip, Color3.fromRGB(255, 206, 160), Color3.fromRGB(186, 150, 226))
 	eventLabel = Ui.label(eventChip, "", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 end
 
@@ -158,12 +158,12 @@ local function buildBanner()
 	})
 	Ui.corner(banner, UDim.new(0, 18))
 	Ui.stroke(banner, 3)
-	Ui.gradient(banner, Color3.fromRGB(255, 130, 190), Ui.Pink)
+	Ui.gradient(banner, Color3.fromRGB(255, 196, 222), Ui.Pink)
 	bannerLabel = Ui.label(banner, "", { Size = UDim2.new(0.68, -10, 0.7, 0), Position = UDim2.new(0, 14, 0.15, 0) })
 	bonusLabel = Ui.label(banner, "", {
 		Size = UDim2.new(0.3, -14, 0.8, 0),
 		Position = UDim2.new(0.7, 0, 0.1, 0),
-		TextColor3 = Color3.fromRGB(255, 245, 100),
+		TextColor3 = Color3.fromRGB(255, 244, 196),
 	})
 end
 
@@ -244,7 +244,7 @@ local function buildToasts()
 		Size = UDim2.new(1, 0, 0.34, 0),
 		Position = UDim2.fromScale(0, 0.64),
 		ZIndex = 41,
-		TextColor3 = Color3.fromRGB(255, 240, 120),
+		TextColor3 = Color3.fromRGB(255, 240, 190),
 	})
 end
 
@@ -314,7 +314,7 @@ function Hud.coinsGained(amount: number, worldPos: Vector3?)
 			Size = UDim2.fromOffset(26, 26),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromOffset((sp.X - inset.X) / s + math.random(-20, 20), (sp.Y - inset.Y) / s + math.random(-20, 20)),
-			BackgroundColor3 = Color3.fromRGB(255, 210, 50),
+			BackgroundColor3 = Color3.fromRGB(255, 210, 120),
 			ZIndex = 30,
 		})
 		Ui.corner(coin, UDim.new(1, 0))
@@ -436,7 +436,7 @@ local function updateTimers()
 		stormLabel.Text = "🌈 " .. t("StormIn", { time = Formulas.formatTime(remaining) })
 		if g then
 			g.Rotation = 90
-			g.Color = ColorSequence.new(Color3.fromRGB(190, 150, 255), Color3.fromRGB(130, 90, 230))
+			g.Color = ColorSequence.new(Color3.fromRGB(214, 196, 255), Color3.fromRGB(170, 146, 236))
 		end
 	end
 	-- Événement en cours

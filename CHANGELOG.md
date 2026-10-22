@@ -1,5 +1,31 @@
 # Journal des versions de Popaint
 
+## 0.7.0 — 22 octobre 2026
+- **Plus aucun fluo** : le matériau néon a disparu de tout le jeu (map, bulles, compagnons, interface).
+  Les récompenses gardent un **doré doux** au lieu du jaune qui pique. Un test vérifie qu'aucun néon
+  ne revient.
+- **Beaucoup plus de 3D** : formes arrondies (nouvelle brique `lib.roundBox`), reliefs, coulées de
+  glaçage et bien plus d'objets.
+  - **Hub** : grande fontaine à 3 vasques, place en mosaïque, bord du hub en glaçage, massifs et haies
+    entre les bases (`tools/map/hub.luau`).
+  - **Œufs** : socle à étages avec perles et festons, coquille à zigzags et pois, reflet, étincelles qui
+    tournent et couronne flottante.
+  - **Portails et ponts** : arche arrondie avec rubans en spirale, guirlande de fanions, étoile au
+    sommet ; ponts à balustres, lanternes et arche de soutien par-dessous.
+  - **Zones** : bord de l'île en glaçage qui coule, bande de roche plus bas, et plus d'objets dedans.
+  - **Montagnes** : terrasses arrondies, avancées rocheuses, petits arbres et cristaux sur les
+    corniches, glaçage au sommet et parfois une cascade.
+  - **Compagnons** : yeux avec iris et deux reflets, joues détaillées, petites mains qui font coucou
+    et orteils.
+  - **Bulles** : reflet blanc tourné vers la caméra et respiration (elles s'étirent doucement).
+  - 8 nouveaux objets de décor : buisson à baies, massif de fleurs, rochers, corail, coquillage,
+    moulin, charrette à bonbons, cerf-volant.
+- **Qualité automatique** (`src/Client/Quality.luau`) : le jeu choisit un niveau de détail selon le
+  réglage graphique du joueur, puis l'ajuste tout seul s'il rame ou s'il est très fluide. Cela règle la
+  distance des détails, les animations, les compagnons et les particules.
+- **Fichier de jeu en .rbxl** (binaire) au lieu de .rbxlx : **833 Ko au lieu de 59 Mo**, et Studio
+  l'ouvre bien plus vite. Le contenu est identique.
+
 ## 0.6.0 — 21 octobre 2026
 - **Ton pastel** partout : peinture, zones, décor, montagnes, terrain, interface, éclairage (moins de
   saturation et d'éblouissement). Les récompenses restent vives : pièces, bulles dorées, Rainbow Storm.

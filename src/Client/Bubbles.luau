@@ -12,6 +12,7 @@ local Config = require(Shared:WaitForChild("Config")) :: any
 local Remotes = require(Shared:WaitForChild("Remotes")) :: any
 local Effects = require(script.Parent:WaitForChild("Effects")) :: any
 local State = require(script.Parent:WaitForChild("State")) :: any
+local Quality = require(script.Parent:WaitForChild("Quality")) :: any
 
 local Bubbles = {}
 
@@ -28,6 +29,7 @@ type ClientBubble = {
 	Kind: string,
 	Storm: boolean,
 	Pending: number?,
+	Shine: Part?, -- reflet blanc (tourné vers la caméra)
 }
 
 local bubbles: { [string]: ClientBubble } = {}
@@ -44,7 +46,7 @@ local combo = 0
 local lastPopTime = 0
 
 local RAINBOW = Config.PaintPalette
-local GOLD = Color3.fromRGB(255, 215, 60)
+local GOLD = Color3.fromRGB(255, 212, 120) -- doré doux (pas de fluo)
 
 local function key(ownerId: number, id: number): string
 	return tostring(ownerId) .. ":" .. tostring(id)
@@ -85,7 +87,7 @@ local function spawnBubble(ownerId: number, id: number, position: Vector3, size:
 	-- cœur doux pour les bulles normales ; les bulles dorées (récompense) gardent un cœur lumineux
 	local vivid = kindName == "high" or storm == true
 	local core = newBall(size * 0.55, Color3.new(1, 1, 1):Lerp(color, if vivid then 0.5 else 0.35),
-		if vivid then Enum.Material.Neon else Enum.Material.Glass, if mine then (if vivid then 0.55 else 0.4) else 0.85)
+		if vivid then Enum.Material.SmoothPlastic else Enum.Material.Glass, if mine then (if vivid then 0.55 else 0.4) else 0.85)
 	shell.CFrame = CFrame.new(position)
 	core.CFrame = CFrame.new(position)
 	local parent = if mine then mineFolder else othersFolder
@@ -98,6 +100,14 @@ local function spawnBubble(ownerId: number, id: number, position: Vector3, size:
 		light.Brightness = if vivid then 2 else 0.6
 		light.Parent = core
 	end
+	-- reflet : petite tache blanche qui donne l'effet d'une vraie bulle de savon
+	local shine: Part? = nil
+	if mine and Quality.level() >= 2 then
+		local s = newBall(size * 0.22, Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, 0.15)
+		s.CFrame = CFrame.new(position)
+		s.Parent = parent
+		shine = s
+	end
 	bubbles[k] = {
 		Id = id,
 		Shell = shell,
@@ -108,7 +118,12 @@ local function spawnBubble(ownerId: number, id: number, position: Vector3, size:
 		Mine = mine,
 		Kind = kindName,
 		Storm = storm == true,
+		Shine = shine,
 	}
+	if shine then
+		local ss = size * 0.22
+		TweenService:Create(shine, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = Vector3.new(ss, ss, ss) }):Play()
+	end
 	local info = TweenInfo.new(if kindName == "cascade" then 0.25 else 0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 	TweenService:Create(shell, info, { Size = Vector3.new(size, size, size) }):Play()
 	local cs = size * 0.55
@@ -122,6 +137,9 @@ local function destroyBubble(k: string, animated: boolean)
 	end
 	bubbles[k] = nil
 	b.Core:Destroy()
+	if b.Shine then
+		b.Shine:Destroy()
+	end
 	if animated then
 		local shell = b.Shell
 		local s = shell.Size.X * 1.6
@@ -138,6 +156,9 @@ end
 local function hide(b: ClientBubble, hidden: boolean)
 	b.Shell.Transparency = if hidden then 1 else 0
 	b.Core.Transparency = if hidden then 1 else 0.55
+	if b.Shine then
+		b.Shine.Transparency = if hidden then 1 else 0.15
+	end
 	local light = b.Core:FindFirstChildOfClass("PointLight")
 	if light then
 		(light :: PointLight).Enabled = not hidden
@@ -220,6 +241,7 @@ function Bubbles.start()
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		local rootPos: Vector3? = if root and root:IsA("BasePart") then (root :: BasePart).Position else nil
 		local reach = contactRadius()
+		local camera = workspace.CurrentCamera
 		for _, b in bubbles do
 			if b.Pending then
 				-- pas de réponse du serveur : la bulle réapparaît
@@ -233,6 +255,17 @@ function Bubbles.start()
 			local cf = CFrame.new(b.Base + Vector3.new(0, bob, 0))
 			b.Shell.CFrame = cf
 			b.Core.CFrame = cf
+			-- la bulle « respire » : elle s'étire doucement en hauteur puis en largeur
+			if b.Shell.Size.X >= b.Size * 0.98 then
+				local w = math.sin(t * 3.1 + b.Phase) * 0.045
+				b.Shell.Size = Vector3.new(b.Size * (1 + w), b.Size * (1 - w), b.Size * (1 + w))
+			end
+			local shine = b.Shine
+			if shine and camera then
+				local cam = camera.CFrame
+				local r = b.Size / 2
+				shine.CFrame = CFrame.lookAt(cf.Position + (cam.UpVector * 0.45 - cam.RightVector * 0.35 - cam.LookVector * 0.75) * r, cam.Position)
+			end
 			if b.Storm then
 				local c = RAINBOW[(math.floor(t * 6 + b.Phase * 3) % #RAINBOW) + 1]
 				b.Shell.Color = c

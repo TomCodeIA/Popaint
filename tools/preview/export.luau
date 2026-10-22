@@ -1,6 +1,7 @@
 -- Popaint : exporte des modèles en JSON pour l'aperçu 3D (tools/preview/render.py).
 -- Usage : lune run tools/preview/export.luau <sortie.json> <quoi>
 --   quoi = "props" (tous les objets de décor), "base" (une base complète), "companions",
+--          "showcase" (fontaine, œuf, portail, pont, montagne, îlot),
 --          "centerpieces", ou un chemin dans le fichier de jeu (ex. "Workspace.Map.Hub.Bases.Base01")
 local fs = require("@lune/fs")
 local process = require("@lune/process")
@@ -93,10 +94,34 @@ elseif WHAT == "companions" then
 	end
 else
 	-- un modèle du fichier de jeu
-	local game = roblox.deserializePlace(fs.readFile("build/Popaint.rbxlx"))
+	local game = roblox.deserializePlace(fs.readFile("build/Popaint.rbxl"))
 	local list = {}
 	if WHAT == "base" then
 		table.insert(list, game.Workspace.Map.Hub.Bases.Base01)
+	elseif WHAT == "showcase" then
+		-- un échantillon de ce qui change souvent : fontaine, œuf, portail, pont, montagne, îlot
+		local ws = game:GetService("Workspace")
+		local function grab(parent, match)
+			for _, c in parent:GetChildren() do
+				if string.find(c.Name, match) then
+					return c
+				end
+			end
+			return nil
+		end
+		local picks = {
+			ws.Map.Hub:FindFirstChild("Fountain"),
+			ws.Map.Eggs:GetChildren()[1],
+			grab(ws.Map.Decor, "Arch$"),
+			grab(ws.Map.Hub, "BridgeDecor$"),
+			grab(ws.Map.Relief:GetChildren()[1], "Mountain"),
+			grab(ws.Map.Decor, "Islet"),
+		}
+		for _, m in picks do
+			if m then
+				table.insert(list, m)
+			end
+		end
 	elseif WHAT == "centerpieces" then
 		for _, z in game.Workspace.Map.Zones:GetChildren() do
 			local f = sandbox()

@@ -275,11 +275,11 @@ function props.NeonTower(parent, pos, rng, s)
 	-- toit : petit étage, enseigne et antenne
 	lib.block(m, "Roof", CF.new(at(pos, h + 0.4 * s)), V3.new(w + 0.8 * s, 0.8 * s, dd + 0.8 * s), tint(wall, 0.3))
 	lib.block(m, "Penthouse", CF.new(at(pos, h + 2.2 * s)), V3.new(w * 0.5, 3 * s, dd * 0.5), wall)
-	local sign = lib.block(d, "RoofSign", CF.new(at(pos, h + 5 * s)), V3.new(w * 0.7, 2.4 * s, 0.4 * s), glow, M.Neon,
+	local sign = lib.block(d, "RoofSign", CF.new(at(pos, h + 5 * s)), V3.new(w * 0.7, 2.4 * s, 0.4 * s), glow, M.SmoothPlastic,
 		{ TopSurface = E.SurfaceType.Smooth })
 	lib.light(sign, glow, 16, 0.6)
 	lib.cyl(d, "Antenna", at(pos, h + 7.5 * s), 6 * s, 0.35 * s, P.white)
-	local tip = lib.ball(d, "Blink", at(pos, h + 10.7 * s), 1.1 * s, P.coral, M.Neon)
+	local tip = lib.ball(d, "Blink", at(pos, h + 10.7 * s), 1.1 * s, P.coral, M.SmoothPlastic)
 	lib.anim(tip, "Pulse", { PulseSpeed = 3 })
 	return m
 end
@@ -315,7 +315,7 @@ function props.Boat(parent, pos, rng, s)
 		lib.cyl(d, "RailPost", (base * CF.new(2.4 * s, 1.6 * s, k * 1.2 * s - 3 * s)).Position, 1 * s, 0.2 * s, P.white)
 		lib.cyl(d, "RailPost", (base * CF.new(-2.4 * s, 1.6 * s, k * 1.2 * s - 3 * s)).Position, 1 * s, 0.2 * s, P.white)
 	end
-	local lamp = lib.ball(d, "Lamp", (base * CF.new(0, 4.6 * s, 1.8 * s)).Position, 0.8 * s, P.butter, M.Neon)
+	local lamp = lib.ball(d, "Lamp", (base * CF.new(0, 4.6 * s, 1.8 * s)).Position, 0.8 * s, P.butter, M.SmoothPlastic)
 	lib.light(lamp, P.butter, 12, 0.6)
 	lib.anim(m, "Bob", { BobAmp = 0.35, BobSpeed = 1.3 })
 	return m
@@ -330,7 +330,7 @@ function props.Buoy(parent, pos, rng, s)
 	lib.cyl(m, "Band", at(pos, 0.9 * s), 0.6 * s, 3.25 * s, P.white)
 	lib.cyl(m, "Pole", at(pos, 3 * s), 3.4 * s, 0.5 * s, P.white)
 	lib.cyl(m, "Cage", at(pos, 4.8 * s), 1.4 * s, 1.6 * s, c)
-	local lamp = lib.ball(m, "Lamp", at(pos, 4.8 * s), 1.1 * s, P.aqua, M.Neon)
+	local lamp = lib.ball(m, "Lamp", at(pos, 4.8 * s), 1.1 * s, P.aqua, M.SmoothPlastic)
 	lib.light(lamp, P.aqua, 10, 0.6)
 	lib.cyl(d, "Cap", at(pos, 5.7 * s), 0.3 * s, 1.7 * s, P.white)
 	ring(d, "Ripple", CF.new(at(pos, 0.05)), 2.4 * s, 12, 0.5 * s, P.white)
@@ -368,7 +368,7 @@ function props.Crane(parent, pos, rng, s)
 	for _, x in { -2.05, 2.05 } do
 		lib.block(d, "Slat", top * CF.new(x * s, -12.4 * s, -16 * s), V3.new(0.1, 3.4, 4.1) * s, P.white, M.Wood)
 	end
-	local beacon = lib.ball(d, "Beacon", (top * CF.new(0, 1.6 * s, -19 * s)).Position, 0.8 * s, P.coral, M.Neon)
+	local beacon = lib.ball(d, "Beacon", (top * CF.new(0, 1.6 * s, -19 * s)).Position, 0.8 * s, P.coral, M.SmoothPlastic)
 	lib.anim(beacon, "Pulse", { PulseSpeed = 2.5 })
 	return m
 end
@@ -393,7 +393,7 @@ function props.NeonSign(parent, pos, rng, s)
 	for k = 0, 11 do
 		local x = -4.6 + (k % 6) * 1.84
 		local y = if k < 6 then 2.3 else -2.3
-		lib.ball(d, "Bulb", (panelCF * CF.new(x * s, y * s, -0.3 * s)).Position, 0.45 * s, glow, M.Neon)
+		lib.ball(d, "Bulb", (panelCF * CF.new(x * s, y * s, -0.3 * s)).Position, 0.45 * s, glow, M.SmoothPlastic)
 	end
 	lib.light(panel, glow, 12, 0.5)
 	return m
@@ -521,7 +521,7 @@ function props.CrystalCluster(parent, pos, rng, s)
 			{ TopSurface = E.SurfaceType.Smooth })
 	end
 	for _ = 1, 5 do
-		lib.ball(d, "Sparkle", at(pos, rng(2, 9) * s) + V3.new(rng(-3, 3), 0, rng(-3, 3)) * s, 0.35 * s, P.white, M.Neon)
+		lib.ball(d, "Sparkle", at(pos, rng(2, 9) * s) + V3.new(rng(-3, 3), 0, rng(-3, 3)) * s, 0.35 * s, P.white, M.SmoothPlastic)
 	end
 	lib.light(rock, c, 10, 0.5)
 	lib.anim(m, "Pulse", { PulseSpeed = 1 + rng(0, 1.5) })
@@ -552,7 +552,7 @@ function props.Pine(parent, pos, rng, s)
 	end
 	local star = CF.new(at(pos, 3 * s + h + 0.9 * s))
 	for k = 0, 4 do
-		lib.block(d, "Star", star * CF.Angles(0, 0, k / 5 * math.pi * 2) * CF.new(0, 0.6 * s, 0), V3.new(0.5, 1.3, 0.4) * s, P.gold, M.Neon,
+		lib.block(d, "Star", star * CF.Angles(0, 0, k / 5 * math.pi * 2) * CF.new(0, 0.6 * s, 0), V3.new(0.5, 1.3, 0.4) * s, P.gold, M.SmoothPlastic,
 			{ TopSurface = E.SurfaceType.Smooth })
 	end
 	return m
@@ -714,9 +714,9 @@ function props.Pumpkin(parent, pos, rng, s)
 	local glow = P.butter
 	for _, x in { -0.22, 0.22 } do
 		lib.block(d, "Eye", yaw * CF.new(x * size, size * 0.55, -size * 0.43) * CF.Angles(0, 0, math.rad(45)), V3.new(0.18, 0.18, 0.1) * size,
-			glow, M.Neon)
+			glow, M.SmoothPlastic)
 	end
-	local mouth = lib.blob(d, "Mouth", yaw * CF.new(0, size * 0.33, -size * 0.43), V3.new(0.4, 0.14, 0.1) * size, glow, M.Neon)
+	local mouth = lib.blob(d, "Mouth", yaw * CF.new(0, size * 0.33, -size * 0.43), V3.new(0.4, 0.14, 0.1) * size, glow, M.SmoothPlastic)
 	lib.light(mouth, P.butter, 9, 0.7)
 	return m
 end
@@ -759,7 +759,7 @@ function props.DeadTree(parent, pos, rng, s)
 		if k % 2 == 0 then
 			local tip = (br * CF.new(0, 2.4 * s, 0)).Position
 			lib.block(d, "String", CF.new(tip - V3.new(0, 0.9 * s, 0)), V3.new(0.08, 1.8, 0.08) * s, P.ink, M.Fabric)
-			local lan = lib.ball(d, "Lantern", tip - V3.new(0, 2.2 * s, 0), 1 * s, P.butter, M.Neon)
+			local lan = lib.ball(d, "Lantern", tip - V3.new(0, 2.2 * s, 0), 1 * s, P.butter, M.SmoothPlastic)
 			lib.light(lan, P.butter, 8, 0.6)
 		end
 	end
@@ -802,7 +802,7 @@ function props.Candle(parent, pos, rng, s)
 		end
 		lib.blob(d, "Drip", CF.new(at(pos, h - 0.3 * s) + off + V3.new(0.55 * s, 0, 0)), V3.new(0.3, 0.9, 0.3) * s, P.white)
 		lib.cyl(d, "Wick", at(pos, h + 0.25 * s) + off, 0.5 * s, 0.12 * s, P.ink)
-		local flame = lib.blob(d, "Flame", CF.new(at(pos, h + 0.8 * s) + off), V3.new(0.6, 1.1, 0.6) * s, P.butter, M.Neon)
+		local flame = lib.blob(d, "Flame", CF.new(at(pos, h + 0.8 * s) + off), V3.new(0.6, 1.1, 0.6) * s, P.butter, M.SmoothPlastic)
 		lib.light(flame, P.peach, 8, 0.8)
 		lib.anim(flame, "Pulse", { PulseSpeed = 6 })
 	end
@@ -907,7 +907,7 @@ function props.Lamp(parent, pos, rng, s)
 		lib.cyl(d, "Ring", at(pos, y * s), 0.3 * s, 0.75 * s, P.lavender)
 	end
 	local c = lib.pick(rng, { P.pink, P.butter, P.sky, P.mint })
-	local bulb = lib.ball(m, "Bulb", at(pos, 8.6 * s), 1.9 * s, c, M.Neon)
+	local bulb = lib.ball(m, "Bulb", at(pos, 8.6 * s), 1.9 * s, c, M.SmoothPlastic)
 	lib.light(bulb, c, 14, 0.7)
 	lib.cyl(m, "Cap", at(pos, 9.7 * s), 0.5 * s, 2.6 * s, P.white)
 	lib.ball(d, "Finial", at(pos, 10.3 * s), 0.6 * s, P.white)
@@ -956,6 +956,181 @@ function props.Islet(parent, pos, radius, color, rng)
 	return m, V3.new(pos.X, lib.WATER + 1.9, pos.Z)
 end
 
+---------------------------------------------------------------- objets ajoutés en 0.7
+function props.Bush(parent, pos, rng, s)
+	local m = new("Bush", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.mint, P.sage, tint(P.sage, 0.15) })
+	local main = lib.ball(m, "Leaves", at(pos, 1.6 * s), 3.6 * s, c)
+	m.PrimaryPart = main
+	for k = 1, 5 do
+		local a = k / 5 * math.pi * 2 + rng(0, 0.6)
+		lib.ball(m, "Leaves", at(pos, rng(1, 1.8) * s) + V3.new(math.cos(a) * 1.5 * s, 0, math.sin(a) * 1.5 * s), rng(2.2, 3) * s,
+			if k % 2 == 0 then c else tint(c, 0.18))
+	end
+	local berry = lib.pick(rng, { P.coral, P.pink, P.lavender, P.butter })
+	for _ = 1, 9 do
+		local a, e = rng(0, math.pi * 2), rng(0, 1.1)
+		lib.ball(d, "Berry", at(pos, 1.6 * s) + V3.new(math.cos(a) * math.cos(e), math.sin(e), math.sin(a) * math.cos(e)) * 2.1 * s,
+			0.45 * s, berry)
+	end
+	return m
+end
+
+function props.FlowerBed(parent, pos, rng, s)
+	local m = new("FlowerBed", parent)
+	local d = lib.details(m)
+	local r = 3 * s
+	local soil = lib.cyl(m, "Soil", at(pos, 0.5 * s), 1 * s, r * 2, P.cocoa)
+	m.PrimaryPart = soil
+	lib.cyl(m, "Rim", at(pos, 0.45 * s), 0.9 * s, r * 2 + 0.6 * s, P.white)
+	for k = 1, 16 do
+		local a = k / 16 * math.pi * 2
+		lib.ball(d, "RimPearl", at(pos, 1 * s) + V3.new(math.cos(a) * (r + 0.2 * s), 0, math.sin(a) * (r + 0.2 * s)), 0.6 * s,
+			if k % 2 == 0 then P.pink else P.white)
+	end
+	local c1, c2 = lib.pick(rng, lib.CANDY), lib.pick(rng, lib.CANDY)
+	for k = 1, 9 do
+		local a, dd = rng(0, math.pi * 2), math.sqrt(rng()) * (r - 0.8 * s)
+		local fp = at(pos, 1 * s) + V3.new(math.cos(a) * dd, 0, math.sin(a) * dd)
+		lib.cyl(d, "Stem", fp + V3.new(0, 0.6 * s, 0), 1.2 * s, 0.15 * s, P.sage)
+		local c = if k % 2 == 0 then c1 else c2
+		for p = 1, 5 do
+			local pa = p / 5 * math.pi * 2
+			lib.ball(m, "Petal", fp + V3.new(math.cos(pa) * 0.32 * s, 1.3 * s, math.sin(pa) * 0.32 * s), 0.45 * s, c)
+		end
+		lib.ball(d, "Heart", fp + V3.new(0, 1.35 * s, 0), 0.35 * s, P.butter)
+	end
+	return m
+end
+
+function props.Rocks(parent, pos, rng, s)
+	local m = new("Rocks", parent)
+	local c = lib.pick(rng, { P.lavender, P.cream, P.peach, P.sky })
+	local main = lib.blob(m, "Rock", CF.new(at(pos, 0.8 * s)) * CF.Angles(0, rng(0, 3), rng(-0.2, 0.2)), V3.new(3.4, 2, 2.8) * s, c)
+	m.PrimaryPart = main
+	for _ = 1, 4 do
+		local a = rng(0, math.pi * 2)
+		lib.blob(m, "Rock", CF.new(at(pos, 0.4 * s) + V3.new(math.cos(a) * 2 * s, 0, math.sin(a) * 2 * s)) * CF.Angles(rng(-0.3, 0.3), a, 0),
+			V3.new(1.6, 1, 1.3) * s * rng(0.7, 1.2), tint(c, rng(0, 0.3)))
+	end
+	return m
+end
+
+function props.Coral(parent, pos, rng, s)
+	local m = new("Coral", parent)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.coral, P.pink, P.lilac, P.peach })
+	local base = lib.blob(m, "Base", CF.new(at(pos, 0.3 * s)), V3.new(3, 1, 3) * s, tint(c, 0.2))
+	m.PrimaryPart = base
+	for k = 1, 5 do
+		local a = k / 5 * math.pi * 2
+		local h = rng(2, 4) * s
+		local tilt = CF.new(at(pos, 0.5 * s)) * CF.Angles(0, a, 0) * CF.Angles(rng(0.2, 0.5), 0, 0)
+		lib.cyl(m, "Branch", (tilt * CF.new(0, h / 2, 0)).Position, h, 0.5 * s, c)
+		lib.ball(d, "Tip", (tilt * CF.new(0, h, 0)).Position, 0.8 * s, tint(c, 0.3))
+	end
+	return m
+end
+
+function props.Seashell(parent, pos, rng, s)
+	local m = new("Seashell", parent)
+	local c = lib.pick(rng, { P.peach, P.pink, P.cream })
+	local yaw = yawCF(at(pos, 0.5 * s), rng)
+	local main = lib.blob(m, "Shell", yaw, V3.new(3, 1.2, 2.6) * s, c)
+	m.PrimaryPart = main
+	for k = -3, 3 do
+		lib.blob(m, "Rib", yaw * CF.new(k * 0.38 * s, 0.4 * s, 0) * CF.Angles(0, k * 0.2, 0), V3.new(0.3, 0.6, 2.4) * s, tint(c, 0.3))
+	end
+	lib.ball(m, "Pearl", (yaw * CF.new(0, 0.6 * s, -1.2 * s)).Position, 0.8 * s, P.white)
+	return m
+end
+
+function props.Windmill(parent, pos, rng, s)
+	local m = new("Windmill", parent, true)
+	local d = lib.details(m)
+	local c = lib.pick(rng, { P.pink, P.sky, P.butter, P.mint })
+	local yaw = yawCF(pos, rng)
+	local h = 14 * s
+	local tower = lib.roundBox(m, "Tower", yaw * CF.new(0, h / 2, 0), V3.new(5, h, 5) * s, P.cream, M.SmoothPlastic, 1.2 * s)
+	m.PrimaryPart = tower
+	lib.roundBox(m, "Band", yaw * CF.new(0, h * 0.3, 0), V3.new(5.4, 0.6, 5.4) * s, c, M.SmoothPlastic, 1.3 * s)
+	lib.roundBox(m, "Band", yaw * CF.new(0, h * 0.7, 0), V3.new(5.4, 0.6, 5.4) * s, c, M.SmoothPlastic, 1.3 * s)
+	-- toit pointu en anneaux
+	for k = 0, 4 do
+		lib.cyl(m, "Roof", (yaw * CF.new(0, h + 0.5 * s + k * 0.9 * s, 0)).Position, 0.9 * s, (6.4 - k * 1.3) * s, if k % 2 == 0 then c else tint(c, 0.3))
+	end
+	lib.ball(d, "Tip", (yaw * CF.new(0, h + 5.2 * s, 0)).Position, 0.8 * s, P.butter)
+	-- porte et fenêtres
+	lib.blob(d, "Door", yaw * CF.new(0, 1.6 * s, -2.55 * s), V3.new(1.8, 3.2, 0.3) * s, P.cocoa)
+	for _, y in { 0.45, 0.62 } do
+		lib.blob(d, "Window", yaw * CF.new(0, h * y, -2.55 * s), V3.new(1.2, 1.2, 0.3) * s, P.sky)
+	end
+	-- ailes qui tournent
+	local blades = new("Blades", m)
+	local hubCF = yaw * CF.new(0, h * 0.82, -2.9 * s) * CF.Angles(0, math.rad(90), 0)
+	local hub = lib.deco({ Name = "BladeHub", Shape = E.PartType.Cylinder, Size = V3.new(0.8 * s, 1.4 * s, 1.4 * s), CFrame = hubCF,
+		Color = P.white, Material = M.SmoothPlastic, Parent = blades })
+	blades.PrimaryPart = hub
+	for k = 1, 4 do
+		local arm = hubCF * CF.Angles(k * math.pi / 2, 0, 0)
+		lib.block(blades, "Arm", arm * CF.new(0, 3.2 * s, 0), V3.new(0.3, 6.4, 0.4) * s, P.cocoa, M.Wood)
+		lib.block(blades, "Sail", arm * CF.new(0.05, 3.8 * s, 0.7 * s), V3.new(0.12, 4.6, 1.4) * s, if k % 2 == 0 then P.white else c, M.Fabric,
+			{ TopSurface = E.SurfaceType.Smooth })
+	end
+	lib.anim(blades, "Spin", { SpinSpeed = 35, SpinAxis = "X" })
+	return m
+end
+
+function props.CandyCart(parent, pos, rng, s, yawAngle)
+	local m = new("CandyCart", parent)
+	local d = lib.details(m)
+	local yaw = CF.new(pos) * CF.Angles(0, yawAngle or rng(0, math.pi * 2), 0)
+	local c = lib.pick(rng, { P.pink, P.sky, P.mint, P.lavender })
+	local body = lib.roundBox(m, "Cart", yaw * CF.new(0, 2.4 * s, 0), V3.new(6, 2.6, 3.4) * s, c, M.SmoothPlastic, 0.8 * s)
+	m.PrimaryPart = body
+	lib.roundBox(m, "Counter", yaw * CF.new(0, 3.85 * s, 0), V3.new(6.4, 0.3, 3.8) * s, P.white, M.SmoothPlastic, 0.9 * s)
+	for _, x in { -2.4, 2.4 } do
+		lib.cyl(m, "Wheel", (yaw * CF.new(x * s, 1 * s, -1.8 * s)).Position, 0.4 * s, 2 * s, P.white, M.SmoothPlastic,
+			{ CFrame = yaw * CF.new(x * s, 1 * s, -1.8 * s) * CF.Angles(0, math.rad(90), 0) })
+		lib.cyl(m, "Wheel", (yaw * CF.new(x * s, 1 * s, 1.8 * s)).Position, 0.4 * s, 2 * s, P.white, M.SmoothPlastic,
+			{ CFrame = yaw * CF.new(x * s, 1 * s, 1.8 * s) * CF.Angles(0, math.rad(90), 0) })
+		lib.cyl(m, "Pole", (yaw * CF.new(x * s, 5.8 * s, 0)).Position, 4 * s, 0.3 * s, P.white)
+	end
+	-- auvent rayé
+	for k = -3, 3 do
+		lib.block(m, "Awning", yaw * CF.new(k * 0.95 * s, 8 * s, 0) * CF.Angles(0, 0, 0), V3.new(0.95, 0.4, 4.6) * s,
+			if k % 2 == 0 then P.white else c, M.SmoothPlastic, { TopSurface = E.SurfaceType.Smooth })
+		lib.blob(d, "Scallop", yaw * CF.new(k * 0.95 * s, 7.6 * s, -2.3 * s), V3.new(0.95, 0.8, 0.3) * s, if k % 2 == 0 then P.white else c)
+	end
+	-- bocaux de bonbons
+	for k = -2, 2 do
+		local jp = yaw * CF.new(k * 1.1 * s, 4.6 * s, 0.4 * s)
+		lib.cyl(d, "Jar", jp.Position, 1.2 * s, 0.9 * s, P.white, M.Glass, { Transparency = 0.4 })
+		lib.ball(d, "Candy", jp.Position, 0.6 * s, lib.CANDY[k + 3])
+		lib.cyl(d, "Lid", (jp * CF.new(0, 0.7 * s, 0)).Position, 0.2 * s, 1 * s, lib.CANDY[k + 4])
+	end
+	-- sucette géante en enseigne
+	lib.cyl(d, "SignStick", (yaw * CF.new(3.6 * s, 9.5 * s, 0)).Position, 3 * s, 0.25 * s, P.white)
+	lib.ball(m, "SignCandy", (yaw * CF.new(3.6 * s, 11.4 * s, 0)).Position, 2 * s, P.pink)
+	return m
+end
+
+function props.Kite(parent, pos, rng, s)
+	local m = new("Kite", parent)
+	local c = lib.pick(rng, lib.CANDY)
+	local y = (18 + rng(0, 10)) * s
+	local kcf = CF.new(at(pos, y)) * CF.Angles(0, rng(0, 6), math.rad(45))
+	local body = lib.block(m, "Kite", kcf, V3.new(3, 3, 0.15) * s, c, M.Fabric, { TopSurface = E.SurfaceType.Smooth })
+	m.PrimaryPart = body
+	lib.block(m, "Cross", kcf * CF.new(0, 0, -0.1 * s), V3.new(3, 0.2, 0.1) * s, P.white, M.SmoothPlastic)
+	for k = 1, 5 do
+		lib.blob(m, "Bow", CF.new(at(pos, y - 2.2 * s - k * 1.1 * s)), V3.new(0.9, 0.4, 0.2) * s, lib.CANDY[(k % #lib.CANDY) + 1])
+	end
+	lib.anim(m, "Bob,Drift", { BobAmp = 1.5, BobSpeed = 0.9, DriftAmp = 3, DriftSpeed = 0.3 })
+	return m
+end
+
 ---------------------------------------------------------------- animations du décor
 -- Chaque objet reçoit ici ses animations (en plus de celles posées dans sa fonction).
 -- Elles ne sont jouées que près du joueur (src/Client/Animator.luau).
@@ -987,6 +1162,9 @@ local ANIMS = {
 	LilyPad = { "Bob", { BobAmp = 0.12, BobSpeed = 1.2 } },
 	Macaron = { "Bob", { BobAmp = 0.3, BobSpeed = 1.4 } },
 	Donut = { "Bob", { BobAmp = 0.3, BobSpeed = 1.2 } },
+	Bush = { "Sway", { SwayAmp = 2, SwaySpeed = 1.1 } },
+	FlowerBed = { "Sway", { SwayAmp = 1.5, SwaySpeed = 1.6 } },
+	Coral = { "Sway", { SwayAmp = 4, SwaySpeed = 0.8 } },
 }
 
 -- Papillon : vole en rond au-dessus d'un objet (fleurs, arbres, sucettes)
@@ -1005,7 +1183,7 @@ local function butterfly(parent, pos, rng, s)
 	return m
 end
 
-local BUTTERFLY_ON = { Flower = 0.35, Tree = 0.3, Lollipop = 0.2, Mushroom = 0.25, Gumdrop = 0.15 }
+local BUTTERFLY_ON = { Flower = 0.35, Tree = 0.3, Lollipop = 0.2, Mushroom = 0.25, Gumdrop = 0.15, FlowerBed = 0.5, Bush = 0.25 }
 
 for name, fn in props do
 	local a = ANIMS[name]
