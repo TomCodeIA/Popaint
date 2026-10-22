@@ -6,7 +6,8 @@ local props = require("./props")
 
 local V3, CF, E = lib.Vector3, lib.CFrame, lib.Enum
 local M = E.Material
-local P = lib.P
+local P = lib.V -- le lobby utilise la palette VIVE (voir lib.V)
+local PASTEL = lib.P
 local tint = lib.tint
 local HALF = lib.HALF
 
@@ -59,22 +60,22 @@ function hub.fountain(parent)
 	local d = lib.details(f)
 	-- bassin du bas
 	lib.part({ Name = "Basin", Shape = E.PartType.Cylinder, Size = V3.new(2.4, 24, 24), CFrame = CF.new(0, 1.2, 0) * CF.Angles(0, 0, math.rad(90)),
-		Color = P.white, Material = M.SmoothPlastic, Parent = f })
+		Color = P.peach, Material = M.SmoothPlastic, Parent = f })
 	lib.deco({ Name = "BasinBand", Shape = E.PartType.Cylinder, Size = V3.new(0.6, 24.4, 24.4), CFrame = CF.new(0, 0.6, 0) * CF.Angles(0, 0, math.rad(90)),
 		Color = P.lavender, Material = M.SmoothPlastic, Parent = f })
 	lib.deco({ Name = "Water", Shape = E.PartType.Cylinder, Size = V3.new(0.3, 22, 22), CFrame = CF.new(0, 2.35, 0) * CF.Angles(0, 0, math.rad(90)),
 		Color = P.sky, Material = M.Glass, Transparency = 0.25, Parent = f })
-	ringOf(f, "Rim", V3.new(0, 2.6, 0), 11.6, 44, 1.4, { P.pink, P.white, P.sky, P.white, P.butter, P.white, P.mint, P.white })
+	ringOf(f, "Rim", V3.new(0, 2.6, 0), 11.6, 44, 1.4, { P.pink, P.butter, P.sky, P.mint, P.lilac, P.coral, P.aqua, P.lavender })
 	-- festons sur le côté du bassin
 	for k = 1, 28 do
 		local a = k / 28 * math.pi * 2
-		lib.blob(d, "Scallop", CF.new(math.cos(a) * 12.1, 1.4, math.sin(a) * 12.1) * CF.Angles(0, -a, 0), V3.new(0.5, 1.6, 2.4), lib.CANDY[k % #lib.CANDY + 1])
+		lib.blob(d, "Scallop", CF.new(math.cos(a) * 12.1, 1.4, math.sin(a) * 12.1) * CF.Angles(0, -a, 0), V3.new(0.5, 1.6, 2.4), lib.VCANDY[k % #lib.VCANDY + 1])
 	end
 	-- colonne avec anneaux
 	lib.part({ Name = "Column", Shape = E.PartType.Cylinder, Size = V3.new(5, 3.2, 3.2), CFrame = CF.new(0, 4.5, 0) * CF.Angles(0, 0, math.rad(90)),
-		Color = P.cream, Material = M.SmoothPlastic, Parent = f })
+		Color = P.peach, Material = M.SmoothPlastic, Parent = f })
 	for k, y in { 2.8, 4.4, 6 } do
-		lib.cyl(f, "ColumnRing", V3.new(0, y, 0), 0.5, 3.8, lib.RAINBOW[k + 1])
+		lib.cyl(f, "ColumnRing", V3.new(0, y, 0), 0.5, 3.8, lib.VRAINBOW[k + 1])
 	end
 	-- bassin du milieu
 	lib.part({ Name = "MidBowl", Shape = E.PartType.Cylinder, Size = V3.new(1.2, 12, 12), CFrame = CF.new(0, 7.2, 0) * CF.Angles(0, 0, math.rad(90)),
@@ -82,12 +83,12 @@ function hub.fountain(parent)
 	lib.blob(f, "MidBowlUnder", CF.new(0, 6.3, 0), V3.new(11, 2, 11), tint(P.lavender, 0.2))
 	lib.deco({ Name = "Water", Shape = E.PartType.Cylinder, Size = V3.new(0.3, 11, 11), CFrame = CF.new(0, 7.85, 0) * CF.Angles(0, 0, math.rad(90)),
 		Color = P.sky, Material = M.Glass, Transparency = 0.25, Parent = f })
-	ringOf(f, "Rim", V3.new(0, 8, 0), 5.8, 24, 0.9, { P.white, P.pink })
+	ringOf(f, "Rim", V3.new(0, 8, 0), 5.8, 24, 0.9, { P.butter, P.pink })
 	-- tige et coupe du haut
 	lib.cyl(f, "Stem", V3.new(0, 9.4, 0), 2.6, 1.8, P.cream)
 	lib.cyl(f, "TopBowl", V3.new(0, 10.8, 0), 0.9, 6, P.pink)
 	lib.blob(f, "TopBowlUnder", CF.new(0, 10.2, 0), V3.new(5.6, 1.4, 5.6), tint(P.pink, 0.2))
-	ringOf(f, "Rim", V3.new(0, 11.3, 0), 2.9, 14, 0.6, { P.white, P.butter })
+	ringOf(f, "Rim", V3.new(0, 11.3, 0), 2.9, 14, 0.6, { P.coral, P.butter })
 	-- jets d'eau en arcs
 	for k = 1, 8 do
 		local a = k / 8 * math.pi * 2
@@ -107,7 +108,7 @@ function hub.fountain(parent)
 		local a = k / 4 * math.pi * 2 + math.pi / 4
 		local pos = V3.new(math.cos(a) * 11.2, 3.6, math.sin(a) * 11.2)
 		local cf = CF.lookAt(pos, V3.new(0, 3.6, 0))
-		fish(f, cf, lib.CANDY[k])
+		fish(f, cf, lib.VCANDY[k])
 		waterArc(d, (cf * CF.new(0, -0.2, -1.6)).Position, V3.new(math.cos(a) * 5, 2.6, math.sin(a) * 5), 2.4, 5)
 	end
 	-- grosse bulle au sommet (titre POPAINT) et petites bulles qui tournent autour
@@ -116,7 +117,7 @@ function hub.fountain(parent)
 	for k = 1, 5 do
 		local orb = lib.model("FountainOrb", parent, "Atomic")
 		local a = k / 5 * math.pi * 2
-		local ball = lib.ball(orb, "Orb", V3.new(math.cos(a) * 6, 13 + (k % 2) * 2, math.sin(a) * 6), 1.4 + (k % 3) * 0.4, lib.CANDY[k], M.Glass,
+		local ball = lib.ball(orb, "Orb", V3.new(math.cos(a) * 6, 13 + (k % 2) * 2, math.sin(a) * 6), 1.4 + (k % 3) * 0.4, lib.VCANDY[k], M.Glass,
 			{ Transparency = 0.3 })
 		orb.PrimaryPart = ball
 		lib.anim(orb, "Swim,Bob", { SwimRadius = 2, SwimSpeed = 0.6 + k * 0.08, BobAmp = 0.8, BobSpeed = 1.4, AnimRange = 220 })
@@ -144,11 +145,11 @@ function hub.plaza(parent)
 			local a = (k + ringIdx * 0.5) / n * math.pi * 2
 			local w = 2 * math.pi * r / n - 0.3
 			lib.deco({ Name = "Mosaic", Size = V3.new(w, 0.1, 2.2), CFrame = CF.new(math.cos(a) * r, 0.05, math.sin(a) * r) * CF.Angles(0, -a + math.pi / 2, 0),
-				Color = if k % 2 == 0 then P.cream else lib.CANDY[(k + ringIdx) % #lib.CANDY + 1], Material = M.SmoothPlastic, Parent = m })
+				Color = if k % 2 == 0 then P.cream else lib.VCANDY[(k + ringIdx) % #lib.VCANDY + 1], Material = M.SmoothPlastic, Parent = m })
 		end
 	end
 	lib.deco({ Name = "PlazaEdge", Shape = E.PartType.Cylinder, Size = V3.new(0.08, 36.4, 36.4), CFrame = CF.new(0, 0.03, 0) * CF.Angles(0, 0, math.rad(90)),
-		Color = P.white, Material = M.SmoothPlastic, Parent = m })
+		Color = P.pink, Material = M.SmoothPlastic, Parent = m })
 	-- étoiles au sol entre les bases
 	for k = 0, 7 do
 		local a = math.rad(k * 45 + 22.5)

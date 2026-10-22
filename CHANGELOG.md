@@ -1,5 +1,14 @@
 # Journal des versions de Popaint
 
+## 0.8.1 — 22 octobre 2026
+- **Le lobby n'est plus blanc** : nouvelle palette de couleurs franches (`lib.V`, `lib.VCANDY`,
+  `lib.VRAINBOW`) — rose bonbon, bleu ciel, jaune soleil, vert menthe — utilisée pour le sol du hub,
+  la place en mosaïque, la bordure, les chemins, le point d'apparition, les socles des bases,
+  les clôtures, la fontaine et ses jets.
+- **Les entrées de zones aussi** : ponts, rambardes, arches, portails et œufs prennent la couleur de
+  leur zone en version franche (`lib.vivid`, qui monte la saturation sans jamais devenir fluo).
+- Le reste du jeu (zones, décor lointain, montagnes) garde ses tons pastel.
+
 ## 0.8.0 — 22 octobre 2026
 - **Particules partout** (visibles par tout le monde, débit volontairement raisonnable) :
   - **ambiance par zone** dans l'air : pétales à Candy Meadow, bulles de savon aux Neon Docks,

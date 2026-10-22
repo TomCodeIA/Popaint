@@ -52,9 +52,73 @@ lib.P = {
 	ink = lib.rgb(84, 64, 104),
 	gold = lib.rgb(255, 210, 120), -- doré doux : pièces, récompenses
 }
+-- Palette VIVE (couleurs franches, jamais fluo) : réservée au lobby et aux entrées de zones,
+-- là où le joueur passe tout le temps et où il faut que ça claque un peu.
+lib.V = {
+	pink = lib.rgb(255, 112, 176),
+	rose = lib.rgb(240, 72, 140),
+	peach = lib.rgb(255, 156, 86),
+	butter = lib.rgb(255, 202, 56),
+	mint = lib.rgb(86, 214, 148),
+	sage = lib.rgb(52, 180, 128),
+	sky = lib.rgb(72, 174, 255),
+	aqua = lib.rgb(58, 208, 202),
+	lavender = lib.rgb(150, 118, 255),
+	lilac = lib.rgb(214, 118, 236),
+	coral = lib.rgb(255, 108, 108),
+	cream = lib.rgb(255, 232, 176),
+	gold = lib.rgb(255, 186, 48),
+	white = lib.rgb(255, 255, 255),
+}
+lib.VCANDY = {
+	lib.V.pink, lib.V.sky, lib.V.butter, lib.V.mint, lib.V.lavender, lib.V.peach, lib.V.aqua, lib.V.lilac,
+}
+lib.VRAINBOW = { lib.V.pink, lib.V.butter, lib.V.mint, lib.V.sky, lib.V.lavender }
+
 lib.RAINBOW = { lib.P.pink, lib.P.butter, lib.P.mint, lib.P.sky, lib.P.lavender }
 lib.CANDY = { lib.P.pink, lib.P.sky, lib.P.butter, lib.P.mint, lib.P.lavender, lib.P.peach, lib.P.aqua, lib.P.lilac }
 -- Aucun fluo dans le jeu : pas de matériau Neon, pas de couleurs fluo (un test le vérifie).
+
+-- Rend une couleur plus franche : on monte la saturation (et on baisse à peine la luminosité).
+-- k = 1 : identique, 2.2 : bien vif. Jamais fluo : on reste dans des couleurs normales.
+function lib.vivid(c, k)
+	k = k or 2.2
+	local r, g, b = c.R, c.G, c.B
+	local mx, mn = math.max(r, g, b), math.min(r, g, b)
+	local v = mx
+	local d = mx - mn
+	local sat = if mx > 0 then d / mx else 0
+	local h = 0
+	if d > 0 then
+		if mx == r then
+			h = ((g - b) / d) % 6
+		elseif mx == g then
+			h = (b - r) / d + 2
+		else
+			h = (r - g) / d + 4
+		end
+		h /= 6
+	end
+	sat = math.clamp(sat * k, 0, 0.82) -- plafond : au-delà ça devient criard
+	v = math.clamp(v * 0.97, 0, 1)
+	-- retour en RVB
+	local i = math.floor(h * 6)
+	local f = h * 6 - i
+	local p1, q, t = v * (1 - sat), v * (1 - f * sat), v * (1 - (1 - f) * sat)
+	local m = i % 6
+	if m == 0 then
+		return Color3.new(v, t, p1)
+	elseif m == 1 then
+		return Color3.new(q, v, p1)
+	elseif m == 2 then
+		return Color3.new(p1, v, t)
+	elseif m == 3 then
+		return Color3.new(p1, q, v)
+	elseif m == 4 then
+		return Color3.new(t, p1, v)
+	end
+	return Color3.new(v, p1, q)
+end
 
 -- Couleur éclaircie (k = 0 : identique, 1 : blanc) et assombrie
 function lib.tint(c, k)

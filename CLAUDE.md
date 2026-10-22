@@ -49,7 +49,10 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 - **Cosmétiques** : `Content/Cosmetics.luau`.
 - **Apparence d'un compagnon** : champ `Look` (Body, Extras, Accent) dans `Content/Companions.luau` ;
   formes et accessoires dans `src/Shared/CompanionModels.luau` (listes vérifiées par les tests).
-- **Style** : pastel (`lib.P` dans `tools/map/lib.luau`, couleurs de `Ui.luau`) ; le doré doux est
+- **Style** : deux palettes dans `tools/map/lib.luau` — `lib.P` (pastel) pour les zones, le décor et
+  les montagnes ; `lib.V` / `lib.VCANDY` / `lib.VRAINBOW` (couleurs franches, jamais fluo) pour le
+  lobby et les entrées de zones. `lib.vivid(c)` rend franche une couleur pastel (ex. couleur de zone).
+  Le doré doux est
   réservé aux récompenses. **Aucun fluo** : le matériau `Neon` est interdit partout (un test le
   vérifie) ; pour faire briller, utilise `lib.glow` ou `M.Glass`.
 - **Donner du volume** : `lib.roundBox` (boîte à coins arrondis), `lib.blob` (boule déformée) et
