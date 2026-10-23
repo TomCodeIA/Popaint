@@ -52,7 +52,7 @@ local spinning: { [Model]: { Base: CFrame, Phase: number } } = {}
 local function icon(parent: Instance, id: string, tier: number, size: number, spin: boolean?): Frame
 	local body = Ui.frame(parent, {
 		Size = UDim2.fromOffset(size, size),
-		BackgroundColor3 = Color3.fromRGB(255, 250, 252),
+		BackgroundColor3 = Ui.PanelRaised,
 		ZIndex = 13,
 	})
 	Ui.corner(body, UDim.new(1, 0))
@@ -215,7 +215,7 @@ local function refresh(state: any)
 		local card = Instance.new("TextButton")
 		card.Text = ""
 		card.AutoButtonColor = false
-		card.BackgroundColor3 = Ui.White
+		card.BackgroundColor3 = Ui.PanelRaised
 		card.ZIndex = 12
 		Ui.corner(card, UDim.new(0, 14))
 		Ui.stroke(card, if selectedUid == c.Uid then 5 else 3, if selectedUid == c.Uid then Ui.Pink else Ui.Ink)
@@ -543,7 +543,7 @@ function Pets.start()
 	detail = Ui.frame(content, {
 		Position = UDim2.new(0.66, 0, 0, 0),
 		Size = UDim2.new(0.34, 0, 1, 0),
-		BackgroundColor3 = Color3.fromRGB(255, 230, 245),
+		BackgroundColor3 = Ui.PanelRaised,
 		ZIndex = 11,
 	})
 	Ui.corner(detail, UDim.new(0, 18))
@@ -552,7 +552,7 @@ function Pets.start()
 	overlay = Ui.frame(gui, {
 		Name = "Hatch",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Color3.fromRGB(70, 50, 100),
+		BackgroundColor3 = Ui.Edge,
 		BackgroundTransparency = 0.35,
 		Visible = false,
 		ZIndex = 60,

@@ -61,11 +61,12 @@ local function buildCoins()
 	})
 	Ui.corner(coinsPill, UDim.new(1, 0))
 	Ui.stroke(coinsPill, 4)
-	Ui.gradient(coinsPill, Color3.fromRGB(255, 248, 210), Color3.fromRGB(255, 206, 120))
+	Ui.gradient(coinsPill, Ui.Yellow, Ui.Yellow)
+	Ui.depth(coinsPill, Ui.Depth.sm, 999).BackgroundColor3 = Ui.deepOf(Ui.Yellow)
 	coinIcon = Ui.frame(coinsPill, {
 		Size = UDim2.fromOffset(52, 52),
 		Position = UDim2.fromOffset(7, 7),
-		BackgroundColor3 = Color3.fromRGB(255, 208, 110),
+		BackgroundColor3 = Ui.deepOf(Ui.Yellow),
 	})
 	Ui.corner(coinIcon, UDim.new(1, 0))
 	Ui.stroke(coinIcon, 3)
@@ -82,7 +83,7 @@ local function buildCoins()
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 82),
 		Size = UDim2.fromOffset(240, 26),
-		BackgroundColor3 = Color3.fromRGB(120, 100, 150),
+		BackgroundColor3 = Ui.Sunken,
 	})
 	Ui.corner(levelBar, UDim.new(1, 0))
 	Ui.stroke(levelBar, 3)
@@ -91,7 +92,7 @@ local function buildCoins()
 		BackgroundColor3 = Ui.White,
 	})
 	Ui.corner(levelFill, UDim.new(1, 0))
-	Ui.gradient(levelFill, Color3.fromRGB(190, 244, 200), Color3.fromRGB(130, 210, 160))
+	Ui.gradient(levelFill, Ui.Green, Ui.Green)
 	levelBadge = Ui.label(levelBar, t("Level", { n = 1 }), {
 		Size = UDim2.new(1, 0, 1, 0),
 		ZIndex = 3,
@@ -107,7 +108,7 @@ local function buildChips()
 	})
 	Ui.corner(stormChip, UDim.new(1, 0))
 	Ui.stroke(stormChip, 3)
-	local g = Ui.gradient(stormChip, Color3.fromRGB(214, 196, 255), Color3.fromRGB(170, 146, 236))
+	local g = Ui.gradient(stormChip, Ui.Purple, Ui.Purple)
 	g.Name = "Gradient"
 	stormLabel = Ui.label(stormChip, "", { Size = UDim2.new(1, -20, 0.72, 0), Position = UDim2.new(0, 10, 0.14, 0) })
 
@@ -120,7 +121,7 @@ local function buildChips()
 	})
 	Ui.corner(boostChip, UDim.new(1, 0))
 	Ui.stroke(boostChip, 3)
-	Ui.gradient(boostChip, Color3.fromRGB(255, 240, 180), Color3.fromRGB(255, 200, 120))
+	Ui.gradient(boostChip, Ui.Yellow, Ui.Yellow)
 	boostLabel = Ui.label(boostChip, "", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 
 	local speedChip = Ui.frame(gui, {
@@ -131,7 +132,7 @@ local function buildChips()
 	})
 	Ui.corner(speedChip, UDim.new(1, 0))
 	Ui.stroke(speedChip, 3)
-	Ui.gradient(speedChip, Color3.fromRGB(190, 246, 232), Color3.fromRGB(120, 210, 190))
+	Ui.gradient(speedChip, Ui.Blue, Ui.Blue)
 	speedLabel = Ui.label(speedChip, "👟 16", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 
 	eventChip = Ui.frame(gui, {
@@ -143,7 +144,7 @@ local function buildChips()
 	})
 	Ui.corner(eventChip, UDim.new(1, 0))
 	Ui.stroke(eventChip, 3)
-	Ui.gradient(eventChip, Color3.fromRGB(255, 206, 160), Color3.fromRGB(186, 150, 226))
+	Ui.gradient(eventChip, Ui.Orange, Ui.Orange)
 	eventLabel = Ui.label(eventChip, "", { Size = UDim2.new(1, -16, 0.72, 0), Position = UDim2.new(0, 8, 0.14, 0) })
 end
 
@@ -158,7 +159,7 @@ local function buildBanner()
 	})
 	Ui.corner(banner, UDim.new(0, 18))
 	Ui.stroke(banner, 3)
-	Ui.gradient(banner, Color3.fromRGB(255, 196, 222), Ui.Pink)
+	Ui.gradient(banner, Ui.Pink, Ui.Pink)
 	bannerLabel = Ui.label(banner, "", { Size = UDim2.new(0.68, -10, 0.7, 0), Position = UDim2.new(0, 14, 0.15, 0) })
 	bonusLabel = Ui.label(banner, "", {
 		Size = UDim2.new(0.3, -14, 0.8, 0),
@@ -186,18 +187,20 @@ local function buildQuests()
 			Name = "Quest" .. i,
 			Position = UDim2.fromOffset(0, 36 + (i - 1) * 66),
 			Size = UDim2.new(1, 0, 0, 60),
-			BackgroundColor3 = Ui.White,
-			BackgroundTransparency = 0.05,
+			BackgroundColor3 = Ui.PanelRaised,
 		})
-		Ui.corner(card, UDim.new(0, 14))
-		Ui.stroke(card, 3)
+		Ui.role(card, "raised")
+		Ui.corner(card, UDim.new(0, Ui.R.sm))
+		Ui.stroke(card)
 		local text = Ui.label(card, "", {
 			Name = "Text",
 			Size = UDim2.new(1, -16, 0, 22),
 			Position = UDim2.fromOffset(8, 5),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = Ui.Ink,
+			Font = Ui.FontText,
 		})
+		Ui.role(text, "ink")
 		local textStroke = text:FindFirstChildOfClass("UIStroke")
 		if textStroke then
 			textStroke:Destroy()
@@ -206,12 +209,12 @@ local function buildQuests()
 			Name = "Bar",
 			Size = UDim2.new(1, -16, 0, 20),
 			Position = UDim2.fromOffset(8, 32),
-			BackgroundColor3 = Color3.fromRGB(225, 215, 240),
+			BackgroundColor3 = Ui.Sunken,
 		})
 		Ui.corner(bar, UDim.new(1, 0))
 		local fill = Ui.frame(bar, { Name = "Fill", Size = UDim2.fromScale(0, 1), BackgroundColor3 = Ui.White })
 		Ui.corner(fill, UDim.new(1, 0))
-		Ui.gradient(fill, Color3.fromRGB(255, 150, 210), Ui.Pink)
+		Ui.gradient(fill, Ui.Pink, Ui.Pink)
 		Ui.label(bar, "", { Name = "Count", Size = UDim2.fromScale(1, 1), ZIndex = 3 })
 		table.insert(questCards, card)
 	end
@@ -252,10 +255,10 @@ end
 function Hud.toast(text: string, color: Color3?)
 	local f = Ui.frame(toastHolder, {
 		Size = UDim2.fromOffset(460, 44),
-		BackgroundColor3 = Ui.White,
+		BackgroundColor3 = Ui.PanelRaised,
 	})
 	Ui.corner(f, UDim.new(1, 0))
-	Ui.stroke(f, 3)
+	Ui.stroke(f)
 	local c = color or Ui.Blue
 	Ui.gradient(f, Ui.lighten(c, 0.3), c)
 	Ui.label(f, text, { Size = UDim2.new(1, -24, 0.72, 0), Position = UDim2.new(0, 12, 0.14, 0) })
@@ -314,7 +317,7 @@ function Hud.coinsGained(amount: number, worldPos: Vector3?)
 			Size = UDim2.fromOffset(26, 26),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromOffset((sp.X - inset.X) / s + math.random(-20, 20), (sp.Y - inset.Y) / s + math.random(-20, 20)),
-			BackgroundColor3 = Color3.fromRGB(255, 210, 120),
+			BackgroundColor3 = Ui.Yellow,
 			ZIndex = 30,
 		})
 		Ui.corner(coin, UDim.new(1, 0))
@@ -375,6 +378,14 @@ local function updateQuests(state: { [string]: any })
 end
 
 local function onState(state: { [string]: any })
+	-- thème choisi par le joueur (sauvegardé sur le serveur)
+	if type(state.Theme) == "string" and state.Theme ~= Ui.themeName() then
+		Ui.setTheme(state.Theme)
+		local b = Hud.leftBar and (Hud.leftBar :: Frame):FindFirstChild("ThemeButton")
+		if b and b:IsA("TextButton") then
+			(b :: TextButton).Text = if state.Theme == "dark" then "🌙" else "☀️"
+		end
+	end
 	targetCoins = state.Coins or targetCoins
 	local level = state.Level or 1
 	levelBadge.Text = t("Level", { n = level })
@@ -436,7 +447,7 @@ local function updateTimers()
 		stormLabel.Text = "🌈 " .. t("StormIn", { time = Formulas.formatTime(remaining) })
 		if g then
 			g.Rotation = 90
-			g.Color = ColorSequence.new(Color3.fromRGB(214, 196, 255), Color3.fromRGB(170, 146, 236))
+			g.Color = ColorSequence.new(Ui.lighten(Ui.Purple, 0.12), Ui.Purple)
 		end
 	end
 	-- Événement en cours
@@ -552,6 +563,19 @@ function Hud.start()
 	layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	layout.Parent = leftBar
 	Hud.leftBar = leftBar
+
+	-- Bouton Jour / Nuit : il change le thème de toute l'interface (design system)
+	local themeButton: TextButton
+	local function themeIcon(): string
+		return if Ui.themeName() == "dark" then "🌙" else "☀️"
+	end
+	themeButton = Ui.button(leftBar, themeIcon(), Ui.Purple, function()
+		local nextTheme = if Ui.themeName() == "dark" then "light" else "dark"
+		Ui.setTheme(nextTheme)
+		themeButton.Text = themeIcon()
+		Hud.toast(t("Theme") .. " : " .. t(if nextTheme == "dark" then "ThemeDark" else "ThemeLight"), Ui.Purple)
+		State.action("SetTheme", nextTheme)
+	end, { Name = "ThemeButton", Size = UDim2.fromOffset(78, 78), LayoutOrder = 3 })
 
 	targetCoins = tonumber(player:GetAttribute("Coins")) or 0
 	displayedCoins = targetCoins

@@ -111,7 +111,7 @@ function Tutorial.start()
 	})
 	Ui.corner(hint, UDim.new(1, 0))
 	Ui.stroke(hint, 4)
-	Ui.gradient(hint, Color3.fromRGB(255, 170, 220), Ui.Pink)
+	Ui.gradient(hint, Ui.Pink, Ui.Pink)
 	hintLabel = Ui.label(hint, "", { Size = UDim2.new(1, -30, 0.7, 0), Position = UDim2.new(0, 15, 0.15, 0) })
 
 	marker = Instance.new("Part")

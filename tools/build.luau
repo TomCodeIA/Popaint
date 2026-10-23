@@ -101,6 +101,8 @@ end
 
 ---------------------------------------------------------------- map
 local world = require("./map/world")
+-- le lobby prend les couleurs du design system (src/Shared/Content/Design.luau)
+require("./map/lib").applyDesign(content.Design)
 world.build(Workspace, content)
 
 -- Chargement progressif façon « render distance » : le décor proche du joueur se charge en détail,

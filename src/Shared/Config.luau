@@ -4,7 +4,7 @@
 
 local Config = {}
 
-Config.Version = "0.8.1"
+Config.Version = "0.9.0"
 
 -- Le contenu (zones, compagnons, quêtes, événements, cosmétiques) est dans le dossier Content.
 local ContentFolder = script.Parent:WaitForChild("Content")
@@ -289,19 +289,17 @@ Config.TutorialPopTarget = 5
 Config.TutorialReward = 100
 
 ---------------------------------------------------------------- Couleurs de peinture des joueurs
--- Pastel « soutenu » : doux pour les yeux mais bien visible sur les cases grises
-Config.PaintPalette = {
-	Color3.fromRGB(255, 150, 196), -- rose
-	Color3.fromRGB(130, 206, 250), -- ciel
-	Color3.fromRGB(255, 220, 120), -- beurre
-	Color3.fromRGB(140, 226, 170), -- menthe
-	Color3.fromRGB(190, 160, 250), -- lavande
-	Color3.fromRGB(255, 184, 140), -- pêche
-	Color3.fromRGB(255, 160, 160), -- corail
-	Color3.fromRGB(130, 226, 214), -- turquoise
-	Color3.fromRGB(240, 170, 230), -- lilas
-	Color3.fromRGB(170, 186, 250), -- pervenche
-}
+-- Les couleurs de peinture viennent du design system (Content/Design.luau) : six peintures pures.
+Config.Design = content("Design")
+-- Les six peintures d'abord, puis quatre faces « deep » pour que chacun des 10 joueurs
+-- d'un serveur ait sa propre couleur.
+Config.PaintPalette = {}
+for _, paint in Config.Design.Paints do
+	table.insert(Config.PaintPalette, paint.Color)
+end
+for _, id in { "pink", "cyan", "lime", "violet" } do
+	table.insert(Config.PaintPalette, Config.Design.Deep[id])
+end
 
 Config.BaseCount = 10
 

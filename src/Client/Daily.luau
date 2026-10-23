@@ -64,7 +64,7 @@ function Daily.start()
 		local card = Ui.frame(content, {
 			Position = UDim2.new((i - 1) / 7, 4, 0, 0),
 			Size = UDim2.new(1 / 7, -8, 0, 190),
-			BackgroundColor3 = if i == 7 then Color3.fromRGB(255, 230, 120) else Ui.White,
+			BackgroundColor3 = if i == 7 then Ui.Yellow else Ui.PanelRaised,
 			ZIndex = 12,
 		})
 		Ui.corner(card, UDim.new(0, 14))

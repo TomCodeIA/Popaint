@@ -129,7 +129,7 @@ function Shop.start()
 		})
 		Ui.corner(row, UDim.new(0, 16))
 		Ui.stroke(row, 3)
-		Ui.gradient(row, Ui.lighten(def.Color, 0.75), Ui.lighten(def.Color, 0.45))
+		Ui.gradient(row, def.Color, Ui.lighten(def.Color, 0.18))
 		local icon = Ui.frame(row, {
 			Size = UDim2.fromOffset(64, 64),
 			Position = UDim2.fromOffset(10, 10),

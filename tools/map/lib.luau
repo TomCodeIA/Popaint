@@ -52,28 +52,67 @@ lib.P = {
 	ink = lib.rgb(84, 64, 104),
 	gold = lib.rgb(255, 210, 120), -- doré doux : pièces, récompenses
 }
--- Palette VIVE (couleurs franches, jamais fluo) : réservée au lobby et aux entrées de zones,
--- là où le joueur passe tout le temps et où il faut que ça claque un peu.
+-- Palette VIVE du lobby : elle vient du DESIGN SYSTEM (src/Shared/Content/Design.luau).
+-- lib.applyDesign (appelée par tools/build.luau) la remplit avec les six peintures de Tom ;
+-- les valeurs ci-dessous ne servent que si le design system n'est pas chargé.
 lib.V = {
-	pink = lib.rgb(255, 112, 176),
-	rose = lib.rgb(240, 72, 140),
-	peach = lib.rgb(255, 156, 86),
-	butter = lib.rgb(255, 202, 56),
-	mint = lib.rgb(86, 214, 148),
-	sage = lib.rgb(52, 180, 128),
-	sky = lib.rgb(72, 174, 255),
-	aqua = lib.rgb(58, 208, 202),
-	lavender = lib.rgb(150, 118, 255),
+	pink = lib.rgb(255, 46, 136),
+	rose = lib.rgb(184, 16, 92),
+	peach = lib.rgb(255, 122, 26),
+	butter = lib.rgb(255, 214, 10),
+	mint = lib.rgb(124, 255, 79),
+	sage = lib.rgb(58, 168, 28),
+	sky = lib.rgb(24, 216, 255),
+	aqua = lib.rgb(10, 141, 176),
+	lavender = lib.rgb(166, 107, 255),
 	lilac = lib.rgb(214, 118, 236),
-	coral = lib.rgb(255, 108, 108),
-	cream = lib.rgb(255, 232, 176),
-	gold = lib.rgb(255, 186, 48),
+	coral = lib.rgb(255, 59, 59),
+	cream = lib.rgb(255, 244, 224),
+	gold = lib.rgb(255, 214, 10),
 	white = lib.rgb(255, 255, 255),
 }
-lib.VCANDY = {
-	lib.V.pink, lib.V.sky, lib.V.butter, lib.V.mint, lib.V.lavender, lib.V.peach, lib.V.aqua, lib.V.lilac,
-}
-lib.VRAINBOW = { lib.V.pink, lib.V.butter, lib.V.mint, lib.V.sky, lib.V.lavender }
+lib.VD = {} -- faces latérales « deep » : le relief 3D du design system
+lib.VCANDY = {}
+lib.VRAINBOW = {}
+
+-- Remplit la palette vive et les faces deep à partir du design system
+function lib.applyDesign(design)
+	if not (design and design.Paints) then
+		return
+	end
+	local byId = {}
+	for _, p in design.Paints do
+		byId[p.Id] = p
+	end
+	local function set(name, id, deep)
+		local p = byId[id]
+		if p then
+			lib.V[name] = if deep then p.Deep else p.Color
+			lib.VD[name] = p.Deep
+		end
+	end
+	set("pink", "pink")
+	set("rose", "pink", true)
+	set("peach", "orange")
+	set("butter", "yellow")
+	set("mint", "lime")
+	set("sage", "lime", true)
+	set("sky", "cyan")
+	set("aqua", "cyan", true)
+	set("lavender", "violet")
+	set("lilac", "violet")
+	lib.V.lilac = lib.tint(lib.V.lavender, 0.25)
+	lib.V.coral = design.Danger or lib.V.coral
+	lib.V.gold = lib.V.butter
+	if design.Themes and design.Themes.light then
+		lib.V.cream = design.Themes.light.Bg
+	end
+	lib.VCANDY = {
+		lib.V.pink, lib.V.sky, lib.V.butter, lib.V.mint, lib.V.lavender, lib.V.peach, lib.V.aqua, lib.V.lilac,
+	}
+	lib.VRAINBOW = { lib.V.pink, lib.V.butter, lib.V.mint, lib.V.sky, lib.V.lavender }
+end
+lib.applyDesign(nil)
 
 lib.RAINBOW = { lib.P.pink, lib.P.butter, lib.P.mint, lib.P.sky, lib.P.lavender }
 lib.CANDY = { lib.P.pink, lib.P.sky, lib.P.butter, lib.P.mint, lib.P.lavender, lib.P.peach, lib.P.aqua, lib.P.lilac }

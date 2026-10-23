@@ -54,7 +54,7 @@ function MiniMap.start()
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -12, 0, 12),
 		Size = UDim2.fromOffset(SIZE, SIZE * ratio),
-		BackgroundColor3 = Color3.fromRGB(150, 220, 255),
+		BackgroundColor3 = Ui.Blue,
 		ClipsDescendants = true,
 	})
 	Ui.corner(frame, UDim.new(0, 18))
@@ -66,7 +66,7 @@ function MiniMap.start()
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = toMap(0, 0),
 		Size = UDim2.fromScale(hubSize, 200 / (MAX_Z - MIN_Z)),
-		BackgroundColor3 = Color3.fromRGB(214, 196, 255),
+		BackgroundColor3 = Ui.Sunken,
 	})
 	Ui.corner(hub, UDim.new(0, 6))
 

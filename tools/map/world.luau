@@ -354,9 +354,9 @@ local function buildBase(base, facing, padColor, accent, n)
 end
 
 function world.hub(hub, plan, ctx)
-	lib.part({ Name = "HubFloor", Size = V3.new(HUB, 1, HUB), CFrame = CF.new(0, -0.5, 0), Color = rgb(196, 172, 255),
+	lib.part({ Name = "HubFloor", Size = V3.new(HUB, 1, HUB), CFrame = CF.new(0, -0.5, 0), Color = lib.tint(lib.V.lavender, 0.45),
 		TopSurface = E.SurfaceType.Studs, Parent = hub })
-	lib.part({ Name = "HubPlatform", Size = V3.new(HUB, 7, HUB), CFrame = CF.new(0, -4.5, 0), Color = rgb(255, 128, 180),
+	lib.part({ Name = "HubPlatform", Size = V3.new(HUB, 7, HUB), CFrame = CF.new(0, -4.5, 0), Color = lib.VD.pink, -- face latérale 3D du design system
 		Material = M.SmoothPlastic, Parent = hub })
 	-- bordure en bonbons tout autour du hub
 	for k = 0, 39 do
@@ -388,7 +388,7 @@ function world.hub(hub, plan, ctx)
 	side("E", false, HALF + 0.5, plan.hubSides.E)
 
 	-- chemins colorés vers chaque pont
-	local pathColors = { N = rgb(255, 140, 190), S = rgb(90, 180, 250), W = rgb(160, 126, 250), E = rgb(96, 218, 160) }
+	local pathColors = { N = lib.V.pink, S = lib.V.sky, W = lib.V.lavender, E = lib.V.mint }
 	for dir in plan.hubSides do
 		local horizontal = dir == "W" or dir == "E"
 		local sign = if dir == "N" or dir == "W" then -1 else 1
@@ -421,9 +421,10 @@ function world.hub(hub, plan, ctx)
 
 	-- 10 bases autour de la fontaine (les axes restent libres pour aller aux zones)
 	local bases = lib.folder("Bases", hub)
+	-- une peinture du design system par base (les six pures, puis quatre faces deep)
 	local padColors = {
-		rgb(255, 158, 198), rgb(126, 196, 252), rgb(255, 222, 110), rgb(132, 230, 170), rgb(182, 150, 252),
-		rgb(255, 180, 120), rgb(255, 146, 146), rgb(110, 224, 214), rgb(246, 150, 236), rgb(158, 172, 252),
+		lib.V.pink, lib.V.sky, lib.V.butter, lib.V.mint, lib.V.peach, lib.V.lavender,
+		lib.VD.pink, lib.VD.sky, lib.VD.mint, lib.VD.lavender,
 	}
 	local baseAngles = { 22.5, 45, 67.5, 112.5, 135, 157.5, 202.5, 225, 292.5, 315 }
 	local basePositions = {}

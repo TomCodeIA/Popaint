@@ -1,5 +1,24 @@
 # Journal des versions de Popaint
 
+## 0.9.0 — 23 octobre 2026
+- **Le design system « Popaint » est maintenant dans le jeu.** Il est copié en code dans
+  `src/Shared/Content/Design.luau` : couleurs, polices, arrondis, reliefs et durées. C'est le seul
+  fichier à toucher pour changer le style de tout le jeu.
+- **Les six peintures** du design system (rose, jaune, cyan, lime, orange, violet) sont devenues les
+  couleurs que les joueurs éclaboussent, et celles du lobby (sol, place, chemins, fontaine, socles
+  des bases, portails, ponts, œufs). Les faces « deep » servent de relief 3D.
+- **Interface refaite au style jouet** : aplats de peinture au lieu des dégradés, contour cartoon de
+  3 px, ombre dure qui fait la face latérale, et les boutons **s'enfoncent** quand on appuie
+  (90 ms, comme le prévoit le design system). Fenêtres, cartes, pastilles, barres et toasts suivent.
+- **Polices du design system** : Luckiest Guy pour les titres et les boutons (« Bungee » n'existe pas
+  dans Roblox, c'est la plus proche), Nunito pour le texte courant.
+- **Thème Jour / Nuit au choix du joueur** : un bouton 🌙/☀️ dans la barre de gauche bascule toute
+  l'interface entre le violet encre (Nuit, par défaut) et le papier crème (Jour). Le choix est
+  sauvegardé et revient à la connexion suivante. Textes ajoutés dans les 5 langues.
+- Tests : le design system est vérifié (six peintures avec leur face deep, les deux thèmes, contraste
+  du texte, polices qui existent vraiment dans Roblox) et le changement de thème est testé en serveur
+  simulé.
+
 ## 0.8.1 — 22 octobre 2026
 - **Le lobby n'est plus blanc** : nouvelle palette de couleurs franches (`lib.V`, `lib.VCANDY`,
   `lib.VRAINBOW`) — rose bonbon, bleu ciel, jaune soleil, vert menthe — utilisée pour le sol du hub,

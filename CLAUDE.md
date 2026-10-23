@@ -49,11 +49,18 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 - **Cosmétiques** : `Content/Cosmetics.luau`.
 - **Apparence d'un compagnon** : champ `Look` (Body, Extras, Accent) dans `Content/Companions.luau` ;
   formes et accessoires dans `src/Shared/CompanionModels.luau` (listes vérifiées par les tests).
-- **Style** : deux palettes dans `tools/map/lib.luau` — `lib.P` (pastel) pour les zones, le décor et
-  les montagnes ; `lib.V` / `lib.VCANDY` / `lib.VRAINBOW` (couleurs franches, jamais fluo) pour le
-  lobby et les entrées de zones. `lib.vivid(c)` rend franche une couleur pastel (ex. couleur de zone).
-  Le doré doux est
-  réservé aux récompenses. **Aucun fluo** : le matériau `Neon` est interdit partout (un test le
+- **Design system** : `src/Shared/Content/Design.luau` est la source du style (couleurs des deux
+  thèmes, six peintures et leur face « deep », polices, arrondis, reliefs, durées). C'est la copie en
+  code du design system créé par Tom dans Claude Design ; pour changer le style, on touche ce fichier.
+  Il alimente `Config.PaintPalette`, `src/Client/Ui.luau` (interface) et, via `lib.applyDesign`
+  (appelée par `tools/build.luau`), la palette vive du lobby.
+- **Interface** : `Ui.role(élément, "panel"|"raised"|"sunken"|"ink"|"inkMuted"|"edge")` fait suivre le
+  thème Jour/Nuit à un élément ; `Ui.depth` pose l'ombre dure (relief jouet) ; `Ui.deepOf(couleur)`
+  donne la face latérale d'une peinture. Pas de dégradé décoratif : des aplats.
+- **Style de la map** : deux palettes dans `tools/map/lib.luau` — `lib.P` (pastel) pour les zones, le
+  décor et les montagnes ; `lib.V` / `lib.VD` / `lib.VCANDY` / `lib.VRAINBOW` (peintures du design
+  system) pour le lobby et les entrées de zones. `lib.vivid(c)` rend franche une couleur pastel.
+  **Aucun fluo** : le matériau `Neon` est interdit partout (un test le
   vérifie) ; pour faire briller, utilise `lib.glow` ou `M.Glass`.
 - **Donner du volume** : `lib.roundBox` (boîte à coins arrondis), `lib.blob` (boule déformée) et
   `lib.drips` (glaçage qui coule le long d'un bord). Les petites pièces vont dans `lib.details(m)`
