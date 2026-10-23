@@ -938,6 +938,45 @@ test("dans Roblox Studio, les événements sont toujours actifs pour les tester"
 	eq(S.game.Workspace:GetAttribute("Event_Halloween2026"), true)
 end)
 
+---------------------------------------------------------------- 9 bis. accessoires du personnage
+lib.suite("Serveur simulé : accessoires du personnage")
+test("réservoir à bulles accroché au personnage, et remis après réapparition", function()
+	S = sim.start({ seed = 77 })
+	local p = sim.join(707, "Tom", HUB_SPAWN)
+	sim.advance(3)
+	local look = p.Character:FindFirstChild("PopaintLook")
+	ok(look ~= nil, "accessoires posés")
+	local parts = 0
+	for _, d in look:GetDescendants() do
+		if d:IsA("BasePart") then
+			parts += 1
+			ok(not d.CanCollide, "un accessoire ne doit jamais bloquer le joueur")
+		end
+	end
+	ok(parts >= 6, "assez de pièces (" .. parts .. ")")
+	sim.respawn(p, CF.new(HUB_SPAWN).Position)
+	sim.advance(3)
+	ok(p.Character:FindFirstChild("PopaintLook") ~= nil, "accessoires remis après réapparition")
+	noScriptErrors()
+end)
+
+---------------------------------------------------------------- 9 ter. thème d'interface
+lib.suite("Serveur simulé : thème Jour / Nuit")
+test("le joueur choisit son thème, il est sauvegardé et renvoyé dans l'état", function()
+	S = sim.start({ seed = 88 })
+	local p = sim.join(808, "Tom", HUB_SPAWN)
+	sim.advance(3)
+	eq(sim.lastState(808).Theme, "dark", "Nuit par défaut")
+	sim.clientFire(p, "Action", "SetTheme", "light")
+	sim.advance(2)
+	eq(sim.lastState(808).Theme, "light", "le thème Jour est pris en compte")
+	eq(data(p).Settings.Theme, "light", "et sauvegardé")
+	sim.clientFire(p, "Action", "SetTheme", "mauve")
+	sim.advance(2)
+	eq(sim.lastState(808).Theme, "light", "un thème inconnu est ignoré")
+	noScriptErrors()
+end)
+
 ---------------------------------------------------------------- 10. Studio sans accès API
 lib.suite("Serveur simulé : Studio sans accès API")
 test("le jeu tourne sans sauvegarde et prévient", function()

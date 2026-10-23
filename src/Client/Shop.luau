@@ -129,7 +129,7 @@ function Shop.start()
 		})
 		Ui.corner(row, UDim.new(0, 16))
 		Ui.stroke(row, 3)
-		Ui.gradient(row, Ui.lighten(def.Color, 0.75), Ui.lighten(def.Color, 0.45))
+		Ui.gradient(row, def.Color, Ui.lighten(def.Color, 0.18))
 		local icon = Ui.frame(row, {
 			Size = UDim2.fromOffset(64, 64),
 			Position = UDim2.fromOffset(10, 10),
@@ -158,7 +158,7 @@ function Shop.start()
 			Name = "Level",
 			Size = UDim2.new(0.3, 0, 0, 22),
 			Position = UDim2.new(0.42, 0, 0, 10),
-			TextColor3 = Color3.fromRGB(255, 245, 140),
+			TextColor3 = Color3.fromRGB(255, 240, 190),
 			ZIndex = 12,
 		})
 		local buy = Ui.button(row, "", Ui.Green, function()

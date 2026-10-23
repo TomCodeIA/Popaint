@@ -6,7 +6,7 @@ local roblox = require("@lune/roblox")
 local lib = require("./lib")
 local test, eq, ok = lib.test, lib.eq, lib.ok
 
-local game = roblox.deserializePlace(fs.readFile("build/Popaint.rbxlx"))
+local game = roblox.deserializePlace(fs.readFile("build/Popaint.rbxl"))
 local Config = lib.loadModule("src/Shared/Config.luau")
 local ws = game:GetService("Workspace")
 local Map = ws.Map
@@ -182,7 +182,7 @@ test("collines peignables : praticables (marches de 1 stud), entrées plates", f
 		for _, t in zone.Tiles:GetChildren() do
 			local h = t:GetAttribute("H") or 0
 			heights[t:GetAttribute("I") .. ":" .. t:GetAttribute("J")] = h
-			ok(h <= 4, "collines de 4 marches max")
+			ok(h <= 6, "collines de 6 marches max")
 			if h > 0 then
 				hillTiles += 1
 			end
@@ -341,7 +341,7 @@ test("pièces centrales : présentes, jamais sur les cases, impossibles à escal
 		local zone = Map.Zones[z.Id]
 		local count = 0
 		for _, child in zone:GetChildren() do
-			if child.Name ~= "Tiles" and child.Name ~= "Decor" and child.Name ~= "Mist" then
+			if child.Name ~= "Tiles" and child.Name ~= "Decor" and child.Name ~= "Mist" and child.Name ~= "Trim" and child.Name ~= "Air" then
 				for _, p in (if child:IsA("BasePart") then { child } else child:GetDescendants()) do
 					if p:IsA("BasePart") then
 						count += 1
@@ -368,6 +368,32 @@ end)
 
 ---------------------------------------------------------------- décor
 lib.suite("Fichier de jeu : décor et chargement progressif")
+
+test("aucun fluo : pas de matériau Neon, ni dans la map ni dans les scripts", function()
+	local neon = 0
+	for _, d in game:GetDescendants() do
+		if d:IsA("BasePart") and d.Material == roblox.Enum.Material.Neon then
+			neon += 1
+			if neon <= 3 then
+				ok(false, "pièce fluo : " .. d:GetFullName())
+			end
+		end
+	end
+	eq(neon, 0, "pièces en Neon")
+	local function scan(dir)
+		for _, name in fs.readDir(dir) do
+			local path = dir .. "/" .. name
+			if fs.isDir(path) then
+				scan(path)
+			elseif string.match(name, "%.luau$") then
+				local src = fs.readFile(path)
+				ok(not string.find(src, "Material.Neon", 1, true), path .. " utilise le matériau Neon")
+			end
+		end
+	end
+	scan("src")
+	scan("tools/map")
+end)
 
 test("le décor n'empiète jamais sur le hub, les ponts ou les zones", function()
 	local checked = 0
@@ -445,7 +471,8 @@ test("chaque zone a son décor autour (montagnes, îlots, objets, collines lisse
 end)
 
 test("animations valides et brouillard léger", function()
-	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true }
+	local valid = { Spin = true, Bob = true, Pulse = true, Wobble = true, Sway = true, Drift = true, Swim = true, Blink = true,
+		Flow = true, Hop = true, Shake = true }
 	local animated, mists = 0, 0
 	for _, d in Map:GetDescendants() do
 		local a = d:GetAttribute("Anim")

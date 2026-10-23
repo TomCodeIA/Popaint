@@ -27,6 +27,12 @@ local function updateGates(state: any)
 			-- La collision n'existe que chez ce joueur : les autres passent s'ils ont débloqué
 			g.CanCollide = not unlocked
 			g.Transparency = if unlocked then 1 else 0
+			-- la décoration du portail disparaît avec lui (chez ce joueur seulement)
+			for _, d in g:GetDescendants() do
+				if d:IsA("BasePart") then
+					(d :: BasePart).LocalTransparencyModifier = if unlocked then 1 else 0
+				end
+			end
 			local zone = Config.zone(g.Name)
 			local label = g:FindFirstChild("GateLabel", true)
 			local ev = zone and zone.Event and Config.event(zone.Event)
@@ -110,7 +116,7 @@ function World.start()
 
 	-- Ambiance du Rainbow Storm : couleurs qui tournent et saturation boostée
 	local cc = Lighting:FindFirstChild("PopaintColor")
-	local baseSat = if cc and cc:IsA("ColorCorrectionEffect") then (cc :: ColorCorrectionEffect).Saturation else 0.3
+	local baseSat = if cc and cc:IsA("ColorCorrectionEffect") then (cc :: ColorCorrectionEffect).Saturation else -0.05
 	local wasActive = false
 	RunService.RenderStepped:Connect(function()
 		local active = workspace:GetAttribute("StormActive") == true
@@ -119,7 +125,7 @@ function World.start()
 			if active then
 				local hue = (os.clock() * 0.15) % 1
 				c.TintColor = Color3.fromHSV(hue, 0.12, 1)
-				c.Saturation = baseSat + 0.25
+				c.Saturation = baseSat + 0.15 -- la tempête colore un peu plus, sans fluo
 			elseif wasActive then
 				c.TintColor = Color3.fromRGB(255, 248, 255)
 				c.Saturation = baseSat

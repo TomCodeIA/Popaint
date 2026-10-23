@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Popaint : installe les outils de vérification et de construction (une seule fois par machine).
-#   - Lune      : exécute les tests et fabrique le fichier de jeu build/Popaint.rbxlx
+#   - Lune      : exécute les tests et fabrique le fichier de jeu build/Popaint.rbxl
 #   - luau-lsp  : vérifie tout le code (types Roblox, mode strict)
 set -euo pipefail
 cd "$(dirname "$0")/.."

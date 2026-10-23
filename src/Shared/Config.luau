@@ -4,7 +4,7 @@
 
 local Config = {}
 
-Config.Version = "0.5.0"
+Config.Version = "0.9.0"
 
 -- Le contenu (zones, compagnons, quêtes, événements, cosmétiques) est dans le dossier Content.
 local ContentFolder = script.Parent:WaitForChild("Content")
@@ -34,7 +34,7 @@ Config.LoadRetryDelay = 4
 
 ---------------------------------------------------------------- Grille de peinture
 Config.TileSize = 4
-Config.GreyColor = Color3.fromRGB(150, 150, 158)
+Config.GreyColor = Color3.fromRGB(176, 172, 186) -- gris doux (légèrement lavande)
 
 ---------------------------------------------------------------- Bulles (valeurs de base, avant améliorations)
 Config.BubbleSpawnInterval = 1.25
@@ -73,14 +73,14 @@ export type UpgradeDef = {
 }
 
 Config.Upgrades = {
-	{ Id = "Production", NameKey = "Up_Production", DescKey = "UpD_Production", BaseCost = 25, MaxLevel = 25, Icon = "🫧", Color = Color3.fromRGB(82, 215, 255) },
-	{ Id = "Size", NameKey = "Up_Size", DescKey = "UpD_Size", BaseCost = 40, MaxLevel = 20, Icon = "💥", Color = Color3.fromRGB(255, 92, 168) },
-	{ Id = "Value", NameKey = "Up_Value", DescKey = "UpD_Value", BaseCost = 60, MaxLevel = 50, Icon = "💰", Color = Color3.fromRGB(255, 214, 64) },
-	{ Id = "Cascade", NameKey = "Up_Cascade", DescKey = "UpD_Cascade", BaseCost = 100, MaxLevel = 20, Icon = "🌈", Color = Color3.fromRGB(186, 120, 255) },
-	{ Id = "Speed", NameKey = "Up_Speed", DescKey = "UpD_Speed", BaseCost = 30, MaxLevel = 14, Icon = "👟", Color = Color3.fromRGB(120, 255, 140) },
-	{ Id = "Afk", NameKey = "Up_Afk", DescKey = "UpD_Afk", BaseCost = 80, MaxLevel = 15, Icon = "💤", Color = Color3.fromRGB(150, 180, 255) },
-	{ Id = "Magnet", NameKey = "Up_Magnet", DescKey = "UpD_Magnet", BaseCost = 150, MaxLevel = 15, Icon = "🧲", Color = Color3.fromRGB(255, 150, 72) },
-	{ Id = "Treadmill", NameKey = "Up_Treadmill", DescKey = "UpD_Treadmill", BaseCost = 200, MaxLevel = 10, Icon = "🏃", Color = Color3.fromRGB(96, 255, 222), Growth = 2.2 },
+	{ Id = "Production", NameKey = "Up_Production", DescKey = "UpD_Production", BaseCost = 25, MaxLevel = 25, Icon = "🫧", Color = Color3.fromRGB(130, 200, 250) },
+	{ Id = "Size", NameKey = "Up_Size", DescKey = "UpD_Size", BaseCost = 40, MaxLevel = 20, Icon = "💥", Color = Color3.fromRGB(255, 150, 196) },
+	{ Id = "Value", NameKey = "Up_Value", DescKey = "UpD_Value", BaseCost = 60, MaxLevel = 50, Icon = "💰", Color = Color3.fromRGB(255, 210, 110) },
+	{ Id = "Cascade", NameKey = "Up_Cascade", DescKey = "UpD_Cascade", BaseCost = 100, MaxLevel = 20, Icon = "🌈", Color = Color3.fromRGB(190, 160, 250) },
+	{ Id = "Speed", NameKey = "Up_Speed", DescKey = "UpD_Speed", BaseCost = 30, MaxLevel = 14, Icon = "👟", Color = Color3.fromRGB(140, 222, 166) },
+	{ Id = "Afk", NameKey = "Up_Afk", DescKey = "UpD_Afk", BaseCost = 80, MaxLevel = 15, Icon = "💤", Color = Color3.fromRGB(170, 186, 250) },
+	{ Id = "Magnet", NameKey = "Up_Magnet", DescKey = "UpD_Magnet", BaseCost = 150, MaxLevel = 15, Icon = "🧲", Color = Color3.fromRGB(255, 184, 140) },
+	{ Id = "Treadmill", NameKey = "Up_Treadmill", DescKey = "UpD_Treadmill", BaseCost = 200, MaxLevel = 10, Icon = "🏃", Color = Color3.fromRGB(130, 226, 214), Growth = 2.2 },
 } :: { UpgradeDef }
 
 Config.UpgradeCostGrowth = 1.15
@@ -124,12 +124,12 @@ Config.UpgradeEffects = {
 Config.TreadmillRates = { 100, 200, 350, 500, 800, 1200, 1800, 2600, 3800, 5500, 8000 }
 -- Apparence du tapis par paliers de niveau : { niveau mini, couleur du cadre, matériau des rails }
 Config.TreadmillLooks = ({
-	{ 0, Color3.fromRGB(120, 120, 135) },
-	{ 1, Color3.fromRGB(82, 180, 255) },
-	{ 3, Color3.fromRGB(90, 230, 120) },
-	{ 5, Color3.fromRGB(186, 100, 255) },
-	{ 7, Color3.fromRGB(255, 200, 40) },
-	{ 9, Color3.fromRGB(255, 92, 168) }, -- arc-en-ciel animé côté joueur
+	{ 0, Color3.fromRGB(170, 166, 186) },
+	{ 1, Color3.fromRGB(150, 200, 246) },
+	{ 3, Color3.fromRGB(150, 220, 170) },
+	{ 5, Color3.fromRGB(196, 170, 246) },
+	{ 7, Color3.fromRGB(250, 210, 120) },
+	{ 9, Color3.fromRGB(250, 164, 204) }, -- arc-en-ciel animé côté joueur
 } :: { { any } })
 
 ---------------------------------------------------------------- Zones (liste dans Content/Zones.luau)
@@ -174,11 +174,11 @@ Config.ResetWaveDuration = 2
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythic"
 
 Config.Rarities = {
-	{ Id = "Common", Chance = 60, Color = Color3.fromRGB(200, 200, 210) },
-	{ Id = "Rare", Chance = 25, Color = Color3.fromRGB(82, 180, 255) },
-	{ Id = "Epic", Chance = 10, Color = Color3.fromRGB(186, 100, 255) },
-	{ Id = "Legendary", Chance = 4.5, Color = Color3.fromRGB(255, 190, 40) },
-	{ Id = "Mythic", Chance = 0.5, Color = Color3.fromRGB(255, 70, 140) },
+	{ Id = "Common", Chance = 60, Color = Color3.fromRGB(200, 200, 214) },
+	{ Id = "Rare", Chance = 25, Color = Color3.fromRGB(120, 192, 255) },
+	{ Id = "Epic", Chance = 10, Color = Color3.fromRGB(190, 140, 255) },
+	{ Id = "Legendary", Chance = 4.5, Color = Color3.fromRGB(255, 196, 70) },
+	{ Id = "Mythic", Chance = 0.5, Color = Color3.fromRGB(255, 120, 176) },
 }
 
 -- Bonus de base par rareté (multipliés par la force de l'œuf et le rang Doré/Arc-en-ciel)
@@ -203,6 +203,7 @@ export type CompanionDef = {
 	Zone: string,
 	Power: number, -- force de l'œuf (zone)
 	Color: Color3,
+	Row: any, -- ligne complète de Content/Companions (apparence 3D "Look")
 }
 
 Config.Companions = {} :: { [string]: CompanionDef }
@@ -221,6 +222,7 @@ for _, row in content("Companions") do
 		Zone = row.Egg,
 		Power = if zone then zone.EggPower else 2.5,
 		Color = row.Color,
+		Row = row,
 	}
 	Config.Companions[def.Id] = def
 	if zone then
@@ -287,18 +289,17 @@ Config.TutorialPopTarget = 5
 Config.TutorialReward = 100
 
 ---------------------------------------------------------------- Couleurs de peinture des joueurs
-Config.PaintPalette = {
-	Color3.fromRGB(255, 92, 168),
-	Color3.fromRGB(82, 215, 255),
-	Color3.fromRGB(255, 214, 64),
-	Color3.fromRGB(120, 255, 140),
-	Color3.fromRGB(186, 120, 255),
-	Color3.fromRGB(255, 150, 72),
-	Color3.fromRGB(255, 120, 120),
-	Color3.fromRGB(96, 255, 222),
-	Color3.fromRGB(255, 170, 230),
-	Color3.fromRGB(150, 180, 255),
-}
+-- Les couleurs de peinture viennent du design system (Content/Design.luau) : six peintures pures.
+Config.Design = content("Design")
+-- Les six peintures d'abord, puis quatre faces « deep » pour que chacun des 10 joueurs
+-- d'un serveur ait sa propre couleur.
+Config.PaintPalette = {}
+for _, paint in Config.Design.Paints do
+	table.insert(Config.PaintPalette, paint.Color)
+end
+for _, id in { "pink", "cyan", "lime", "violet" } do
+	table.insert(Config.PaintPalette, Config.Design.Deep[id])
+end
 
 Config.BaseCount = 10
 

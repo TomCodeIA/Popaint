@@ -204,6 +204,41 @@ test("remplacement et langue inconnue", function()
 	ok(Locale.isValid("it") and not Locale.isValid("pt") and not Locale.isValid(nil))
 end)
 
+---------------------------------------------------------------- Design system
+lib.suite("Design system")
+test("le design system est complet et utilisable", function()
+	local D = Config.Design
+	ok(D ~= nil, "Content/Design.luau chargé")
+	eq(#D.Paints, 6, "six peintures")
+	for _, paint in D.Paints do
+		ok(type(paint.Id) == "string" and paint.Id ~= "", "chaque peinture a un identifiant")
+		ok(D.Paint[paint.Id] ~= nil and D.Deep[paint.Id] ~= nil, paint.Id .. " : couleur et face deep")
+		ok(paint.Color ~= paint.Deep, paint.Id .. " : la face deep doit être différente")
+	end
+	for _, name in D.ThemeOrder do
+		local t = D.Themes[name]
+		ok(t ~= nil, "thème " .. name)
+		for _, key in { "Bg", "BgRaised", "BgSunken", "Ink", "InkMuted", "Edge" } do
+			ok(t[key] ~= nil, "thème " .. name .. " : couleur " .. key)
+		end
+		-- le texte doit se détacher du fond (sinon illisible)
+		local function lum(c)
+			return 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B
+		end
+		ok(math.abs(lum(t.Ink) - lum(t.Bg)) > 0.4, "thème " .. name .. " : texte bien contrasté")
+	end
+	ok(D.Themes[D.DefaultTheme] ~= nil, "le thème par défaut existe")
+	for _, font in { D.FontDisplay, D.FontText } do
+		ok(roblox.Enum.Font[font] ~= nil, "police inconnue dans Roblox : " .. tostring(font))
+	end
+	for _, key in { "sm", "md", "lg", "pill" } do
+		ok(type(D.Radius[key]) == "number", "arrondi " .. key)
+	end
+	for _, key in { "Tap", "Pop", "Float" } do
+		ok(type(D.Duration[key]) == "number" and D.Duration[key] > 0, "durée " .. key)
+	end
+end)
+
 ---------------------------------------------------------------- Réglages
 lib.suite("Réglages")
 test("cohérence des réglages", function()
@@ -287,6 +322,33 @@ test("événements : dates valides", function()
 		ok(en > s, e.Id .. " : la fin doit être après le début")
 		ok(en - s <= 60 * 86400, e.Id .. " : 60 jours maximum")
 		ok(type(e.Icon) == "string" and e.Icon ~= "", e.Id .. " : icône")
+	end
+end)
+
+test("compagnons : apparences 3D valides et modèles constructibles", function()
+	local Models = lib.loadModule("src/Shared/CompanionModels.luau")
+	for _, row in lib.loadFile("src/Shared/Content/Companions.luau", lib.baseEnv()) do
+		local look = row.Look
+		if look then
+			ok(look.Body == nil or table.find(Models.Bodies, look.Body), row.Id .. " : forme inconnue " .. tostring(look.Body))
+			for _, x in look.Extras or {} do
+				ok(Models.Extras[x] ~= nil, row.Id .. " : accessoire inconnu " .. tostring(x))
+			end
+		end
+		for tier = 0, 2 do
+			local m = Models.build(row, tier)
+			ok(m.PrimaryPart ~= nil, row.Id .. " : pièce principale")
+			local n, maxR = 0, 0
+			for _, d in m:GetDescendants() do
+				if d:IsA("BasePart") then
+					n += 1
+					ok(d.Anchored and not d.CanCollide and not d.CanTouch, row.Id .. " : pièce sans collision")
+					maxR = math.max(maxR, d.CFrame.Position.Magnitude)
+				end
+			end
+			ok(n >= 12, row.Id .. " : assez détaillé (" .. n .. " pièces)")
+			ok(maxR < 4.5, row.Id .. " : taille raisonnable")
+		end
 	end
 end)
 

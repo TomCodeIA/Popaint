@@ -20,21 +20,21 @@ local Cosmetics: { CosmeticDef } = {
 	{ Id = "BubbleGum", Name = "Bubble Gum", Cost = 500,
 		Colors = { Color3.fromRGB(255, 150, 210), Color3.fromRGB(255, 255, 255) } },
 	{ Id = "Ocean", Name = "Ocean", Cost = 3000,
-		Colors = { Color3.fromRGB(82, 215, 255), Color3.fromRGB(40, 120, 255) } },
+		Colors = { Color3.fromRGB(150, 214, 250), Color3.fromRGB(120, 170, 240) } },
 	{ Id = "Mint", Name = "Mint", Cost = 15000,
-		Colors = { Color3.fromRGB(150, 255, 200), Color3.fromRGB(60, 210, 160) } },
+		Colors = { Color3.fromRGB(180, 240, 210), Color3.fromRGB(120, 210, 180) } },
 	{ Id = "Sunset", Name = "Sunset", Cost = 80000,
-		Colors = { Color3.fromRGB(255, 214, 64), Color3.fromRGB(255, 120, 60), Color3.fromRGB(255, 70, 140) } },
+		Colors = { Color3.fromRGB(255, 220, 140), Color3.fromRGB(255, 170, 130), Color3.fromRGB(250, 150, 190) } },
 	{ Id = "Galaxy", Name = "Galaxy", Cost = 600000,
-		Colors = { Color3.fromRGB(60, 30, 140), Color3.fromRGB(186, 120, 255), Color3.fromRGB(255, 255, 255) } },
+		Colors = { Color3.fromRGB(130, 110, 190), Color3.fromRGB(200, 170, 250), Color3.fromRGB(255, 255, 255) } },
 	{ Id = "Rainbow", Name = "Rainbow", Cost = 5000000, Animated = true,
 		Colors = {
-			Color3.fromRGB(255, 92, 168), Color3.fromRGB(255, 214, 64), Color3.fromRGB(120, 255, 140),
-			Color3.fromRGB(82, 215, 255), Color3.fromRGB(186, 120, 255),
+			Color3.fromRGB(255, 160, 200), Color3.fromRGB(255, 220, 130), Color3.fromRGB(160, 230, 180),
+			Color3.fromRGB(150, 206, 250), Color3.fromRGB(196, 170, 250),
 		} },
 	-- Événement Halloween 2026
 	{ Id = "Spooky", Name = "Spooky", Cost = 2500, Event = "Halloween2026", Animated = true,
-		Colors = { Color3.fromRGB(255, 140, 40), Color3.fromRGB(110, 60, 160), Color3.fromRGB(150, 255, 120) } },
+		Colors = { Color3.fromRGB(255, 186, 130), Color3.fromRGB(170, 140, 210), Color3.fromRGB(190, 240, 170) } },
 }
 
 return Cosmetics

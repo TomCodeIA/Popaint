@@ -3,6 +3,7 @@ local roblox = require("@lune/roblox")
 
 local Instance = roblox.Instance
 local Vector3 = roblox.Vector3
+local Vector2 = roblox.Vector2
 local CFrame = roblox.CFrame
 local Color3 = roblox.Color3
 local Enum = roblox.Enum
@@ -31,12 +32,140 @@ function lib.rgb(r, g, b)
 	return Color3.fromRGB(r, g, b)
 end
 
-lib.RAINBOW = {
-	lib.rgb(255, 92, 168), lib.rgb(255, 214, 64), lib.rgb(120, 255, 140), lib.rgb(82, 215, 255), lib.rgb(186, 120, 255),
+-- Palette PASTEL du jeu (douce pour les yeux). Les touches vives sont réservées aux récompenses.
+lib.P = {
+	pink = lib.rgb(255, 190, 215),
+	rose = lib.rgb(246, 156, 192),
+	peach = lib.rgb(255, 210, 178),
+	butter = lib.rgb(255, 236, 170),
+	mint = lib.rgb(184, 238, 204),
+	sage = lib.rgb(160, 214, 180),
+	sky = lib.rgb(182, 218, 255),
+	aqua = lib.rgb(176, 234, 230),
+	lavender = lib.rgb(206, 192, 255),
+	lilac = lib.rgb(232, 196, 244),
+	coral = lib.rgb(255, 178, 170),
+	cream = lib.rgb(255, 248, 236),
+	white = lib.rgb(255, 255, 255),
+	plum = lib.rgb(150, 120, 172), -- contraste doux (yeux, ombres, troncs)
+	cocoa = lib.rgb(176, 132, 110),
+	ink = lib.rgb(84, 64, 104),
+	gold = lib.rgb(255, 210, 120), -- doré doux : pièces, récompenses
 }
-lib.CANDY = {
-	lib.rgb(255, 92, 168), lib.rgb(82, 215, 255), lib.rgb(255, 214, 64), lib.rgb(120, 255, 140), lib.rgb(186, 120, 255),
+-- Palette VIVE du lobby : elle vient du DESIGN SYSTEM (src/Shared/Content/Design.luau).
+-- lib.applyDesign (appelée par tools/build.luau) la remplit avec les six peintures de Tom ;
+-- les valeurs ci-dessous ne servent que si le design system n'est pas chargé.
+lib.V = {
+	pink = lib.rgb(255, 46, 136),
+	rose = lib.rgb(184, 16, 92),
+	peach = lib.rgb(255, 122, 26),
+	butter = lib.rgb(255, 214, 10),
+	mint = lib.rgb(124, 255, 79),
+	sage = lib.rgb(58, 168, 28),
+	sky = lib.rgb(24, 216, 255),
+	aqua = lib.rgb(10, 141, 176),
+	lavender = lib.rgb(166, 107, 255),
+	lilac = lib.rgb(214, 118, 236),
+	coral = lib.rgb(255, 59, 59),
+	cream = lib.rgb(255, 244, 224),
+	gold = lib.rgb(255, 214, 10),
+	white = lib.rgb(255, 255, 255),
 }
+lib.VD = {} -- faces latérales « deep » : le relief 3D du design system
+lib.VCANDY = {}
+lib.VRAINBOW = {}
+
+-- Remplit la palette vive et les faces deep à partir du design system
+function lib.applyDesign(design)
+	if not (design and design.Paints) then
+		return
+	end
+	local byId = {}
+	for _, p in design.Paints do
+		byId[p.Id] = p
+	end
+	local function set(name, id, deep)
+		local p = byId[id]
+		if p then
+			lib.V[name] = if deep then p.Deep else p.Color
+			lib.VD[name] = p.Deep
+		end
+	end
+	set("pink", "pink")
+	set("rose", "pink", true)
+	set("peach", "orange")
+	set("butter", "yellow")
+	set("mint", "lime")
+	set("sage", "lime", true)
+	set("sky", "cyan")
+	set("aqua", "cyan", true)
+	set("lavender", "violet")
+	set("lilac", "violet")
+	lib.V.lilac = lib.tint(lib.V.lavender, 0.25)
+	lib.V.coral = design.Danger or lib.V.coral
+	lib.V.gold = lib.V.butter
+	if design.Themes and design.Themes.light then
+		lib.V.cream = design.Themes.light.Bg
+	end
+	lib.VCANDY = {
+		lib.V.pink, lib.V.sky, lib.V.butter, lib.V.mint, lib.V.lavender, lib.V.peach, lib.V.aqua, lib.V.lilac,
+	}
+	lib.VRAINBOW = { lib.V.pink, lib.V.butter, lib.V.mint, lib.V.sky, lib.V.lavender }
+end
+lib.applyDesign(nil)
+
+lib.RAINBOW = { lib.P.pink, lib.P.butter, lib.P.mint, lib.P.sky, lib.P.lavender }
+lib.CANDY = { lib.P.pink, lib.P.sky, lib.P.butter, lib.P.mint, lib.P.lavender, lib.P.peach, lib.P.aqua, lib.P.lilac }
+-- Aucun fluo dans le jeu : pas de matériau Neon, pas de couleurs fluo (un test le vérifie).
+
+-- Rend une couleur plus franche : on monte la saturation (et on baisse à peine la luminosité).
+-- k = 1 : identique, 2.2 : bien vif. Jamais fluo : on reste dans des couleurs normales.
+function lib.vivid(c, k)
+	k = k or 2.2
+	local r, g, b = c.R, c.G, c.B
+	local mx, mn = math.max(r, g, b), math.min(r, g, b)
+	local v = mx
+	local d = mx - mn
+	local sat = if mx > 0 then d / mx else 0
+	local h = 0
+	if d > 0 then
+		if mx == r then
+			h = ((g - b) / d) % 6
+		elseif mx == g then
+			h = (b - r) / d + 2
+		else
+			h = (r - g) / d + 4
+		end
+		h /= 6
+	end
+	sat = math.clamp(sat * k, 0, 0.82) -- plafond : au-delà ça devient criard
+	v = math.clamp(v * 0.97, 0, 1)
+	-- retour en RVB
+	local i = math.floor(h * 6)
+	local f = h * 6 - i
+	local p1, q, t = v * (1 - sat), v * (1 - f * sat), v * (1 - (1 - f) * sat)
+	local m = i % 6
+	if m == 0 then
+		return Color3.new(v, t, p1)
+	elseif m == 1 then
+		return Color3.new(q, v, p1)
+	elseif m == 2 then
+		return Color3.new(p1, v, t)
+	elseif m == 3 then
+		return Color3.new(p1, q, v)
+	elseif m == 4 then
+		return Color3.new(t, p1, v)
+	end
+	return Color3.new(v, p1, q)
+end
+
+-- Couleur éclaircie (k = 0 : identique, 1 : blanc) et assombrie
+function lib.tint(c, k)
+	return c:Lerp(lib.rgb(255, 255, 255), k)
+end
+function lib.dark(c, k)
+	return c:Lerp(lib.rgb(70, 50, 90), k)
+end
 
 -- Générateur pseudo-aléatoire déterministe : la map est identique à chaque construction
 function lib.rng(seed)
@@ -196,7 +325,143 @@ function lib.primary(m)
 	return m
 end
 
--- Animation jouée chez les joueurs (voir src/Client/Animator.luau) : "Spin", "Bob", "Pulse", "Wobble"
+-- Sous-modèle "Details" : les petites pièces qu'on ne montre que de près (src/Client/Detail.luau)
+function lib.details(m)
+	local d = m:FindFirstChild("Details")
+	if d then
+		return d
+	end
+	d = lib.Instance.new("Model")
+	d.Name = "Details"
+	d.Parent = m
+	return d
+end
+
+-- Lueur douce (remplace le néon qui éblouit) : matériau lisse + petite lumière
+function lib.glow(part, color, range)
+	part.Material = Enum.Material.SmoothPlastic
+	local l = lib.light(part, color or part.Color, range or 10, 0.6)
+	return l
+end
+
+-- Boîte aux coins arrondis (arêtes verticales arrondies) : 2 blocs en croix + 4 cylindres aux coins.
+-- r = rayon de l'arrondi. Renvoie le bloc principal.
+function lib.roundBox(parent, name, cf, size, color, material, r, extra)
+	r = math.min(r or 0.6, size.X / 2 - 0.05, size.Z / 2 - 0.05)
+	local main = lib.block(parent, name, cf, Vector3.new(size.X - r * 2, size.Y, size.Z), color, material, extra)
+	lib.block(parent, name, cf, Vector3.new(size.X, size.Y, size.Z - r * 2), color, material, extra)
+	for _, sx in { -1, 1 } do
+		for _, sz in { -1, 1 } do
+			local props = {
+				Name = name .. "Edge",
+				Shape = Enum.PartType.Cylinder,
+				Size = Vector3.new(size.Y, r * 2, r * 2),
+				CFrame = cf * CFrame.new(sx * (size.X / 2 - r), 0, sz * (size.Z / 2 - r)) * CFrame.Angles(0, 0, math.rad(90)),
+				Color = color,
+				Material = material or Enum.Material.Plastic,
+				Parent = parent,
+			}
+			for k, v in extra or {} do
+				if k ~= "TopSurface" then
+					props[k] = v
+				end
+			end
+			lib.deco(props)
+		end
+	end
+	return main
+end
+
+-- Rangée de petites boules « glaçage » qui coulent le long d'un bord (de a à b, hauteur y)
+function lib.drips(parent, a, b, y, color, size, rng)
+	local len = (b - a).Magnitude
+	local n = math.max(1, math.floor(len / (size * 1.1)))
+	for k = 0, n do
+		local p = a:Lerp(b, k / n)
+		local long = if rng then rng(0.8, 1.9) else 1.2
+		lib.blob(parent, "Drip", CFrame.new(p.X, y - size * long * 0.35, p.Z), Vector3.new(size, size * long, size), color)
+	end
+end
+
+---------------------------------------------------------------- particules (ambiance et magie)
+-- Petits nuages de particules douces. Aucun fluo : LightEmission reste très bas.
+-- kind : "Petals" (pétales), "Soap" (bulles de savon), "Fireflies" (lucioles), "Snow" (flocons),
+--        "Dust" (poussière dorée), "Leaves" (feuilles), "Sparkle" (étincelles), "Aura" (halo qui monte)
+local SPARK = "rbxasset://textures/particles/sparkles_main.dds"
+local PUFF = "rbxasset://textures/particles/smoke_main.dds"
+
+local PARTICLE_KINDS = {
+	Petals = { Texture = SPARK, Rate = 14, Life = { 7, 11 }, Size = { 0.5, 0.9 }, Speed = { 1, 2.5 },
+		Accel = Vector3.new(1.2, -1.6, 0.6), Spin = { -60, 60 }, Spread = 180, Transparency = 0.25 },
+	Soap = { Texture = SPARK, Rate = 10, Life = { 6, 10 }, Size = { 0.7, 1.6 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0.4, 1.1, 0.2), Spin = { -20, 20 }, Spread = 60, Transparency = 0.4 },
+	Fireflies = { Texture = SPARK, Rate = 10, Life = { 5, 9 }, Size = { 0.35, 0.6 }, Speed = { 0.4, 1.4 },
+		Accel = Vector3.new(0.3, 0.3, -0.3), Spin = { -10, 10 }, Spread = 180, Transparency = 0.15 },
+	Snow = { Texture = SPARK, Rate = 18, Life = { 8, 12 }, Size = { 0.4, 0.8 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0.8, -2.2, -0.5), Spin = { -45, 45 }, Spread = 180, Transparency = 0.2 },
+	Dust = { Texture = SPARK, Rate = 12, Life = { 6, 10 }, Size = { 0.35, 0.7 }, Speed = { 0.6, 1.8 },
+		Accel = Vector3.new(0.2, 1, 0.2), Spin = { -30, 30 }, Spread = 180, Transparency = 0.3 },
+	Leaves = { Texture = SPARK, Rate = 12, Life = { 7, 11 }, Size = { 0.5, 1 }, Speed = { 1, 2.5 },
+		Accel = Vector3.new(1.6, -1.8, 1), Spin = { -90, 90 }, Spread = 180, Transparency = 0.2 },
+	Sparkle = { Texture = SPARK, Rate = 7, Life = { 1.2, 2 }, Size = { 0.3, 0.6 }, Speed = { 1, 2 },
+		Accel = Vector3.new(0, 1.2, 0), Spin = { -40, 40 }, Spread = 180, Transparency = 0.15 },
+	Aura = { Texture = PUFF, Rate = 6, Life = { 1.6, 2.6 }, Size = { 1.4, 2.6 }, Speed = { 0.6, 1.4 },
+		Accel = Vector3.new(0, 1.6, 0), Spin = { -12, 12 }, Spread = 25, Transparency = 0.72 },
+}
+lib.PARTICLE_KINDS = PARTICLE_KINDS
+
+-- parent : la pièce qui émet. colors : une couleur ou une liste (dégradé). opts : { Rate, Size, Direction }
+function lib.particles(parent, kind, colors, opts)
+	local def = PARTICLE_KINDS[kind]
+	assert(def, "ambiance inconnue : " .. tostring(kind))
+	opts = opts or {}
+	local list = if colors.R ~= nil then { colors } else colors
+	local e = Instance.new("ParticleEmitter")
+	e.Name = kind
+	e.Texture = def.Texture
+	if #list == 1 then
+		e.Color = roblox.ColorSequence.new(list[1])
+	else
+		local keys = {}
+		for k, c in list do
+			table.insert(keys, roblox.ColorSequenceKeypoint.new((k - 1) / (#list - 1), c))
+		end
+		e.Color = roblox.ColorSequence.new(keys)
+	end
+	local scale = opts.Size or 1
+	e.Size = roblox.NumberSequence.new({
+		roblox.NumberSequenceKeypoint.new(0, def.Size[1] * scale),
+		roblox.NumberSequenceKeypoint.new(0.35, def.Size[2] * scale),
+		roblox.NumberSequenceKeypoint.new(1, 0),
+	})
+	e.Transparency = roblox.NumberSequence.new({
+		roblox.NumberSequenceKeypoint.new(0, 1),
+		roblox.NumberSequenceKeypoint.new(0.18, def.Transparency),
+		roblox.NumberSequenceKeypoint.new(0.8, def.Transparency),
+		roblox.NumberSequenceKeypoint.new(1, 1),
+	})
+	e.Lifetime = roblox.NumberRange.new(def.Life[1], def.Life[2])
+	e.Rate = opts.Rate or def.Rate
+	e.Speed = roblox.NumberRange.new(def.Speed[1], def.Speed[2])
+	e.Acceleration = def.Accel
+	e.Rotation = roblox.NumberRange.new(0, 360)
+	e.RotSpeed = roblox.NumberRange.new(def.Spin[1], def.Spin[2])
+	e.SpreadAngle = Vector2.new(def.Spread, def.Spread)
+	e.LightEmission = 0.12 -- jamais de fluo
+	e.LightInfluence = 0.7
+	e.Drag = 1.2
+	e.EmissionDirection = opts.Direction or Enum.NormalId.Top
+	e.Parent = parent
+	return e
+end
+
+-- Pièce invisible qui sert juste à poser des particules au-dessus d'une zone
+function lib.airBox(parent, name, cf, size)
+	return lib.deco({ Name = name, Size = size, CFrame = cf, Transparency = 1, Parent = parent })
+end
+
+-- Animation jouée chez les joueurs (voir src/Client/Animator.luau) :
+-- "Spin", "Bob", "Pulse", "Wobble", "Sway", "Drift", "Swim", "Blink", "Flow", "Hop", "Shake"
 function lib.anim(inst, kinds, attrs)
 	inst:SetAttribute("Anim", kinds)
 	for k, v in attrs or {} do

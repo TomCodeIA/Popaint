@@ -115,50 +115,105 @@ end
 -- Collines peignables (2 ou 3 par zone), entièrement dans la forme, loin des entrées
 function shapes.hills(seed, inMask)
 	local rng = lib.rng(seed)
+	-- « profondeur » de chaque case : à quelle distance du bord de l'île elle se trouve.
+	-- Cela garantit que le bord reste plat (pas de falaise) quelle que soit la forme de la zone.
+	local depth = {}
+	local queue, head = {}, 1
+	for i = 1, COUNT do
+		depth[i] = {}
+		for j = 1, COUNT do
+			if inMask(i, j) then
+				local border = not inMask(i - 1, j) or not inMask(i + 1, j) or not inMask(i, j - 1) or not inMask(i, j + 1)
+				depth[i][j] = if border then 1 else math.huge
+				if border then
+					table.insert(queue, { i, j })
+				end
+			else
+				depth[i][j] = 0
+			end
+		end
+	end
+	while head <= #queue do
+		local c = queue[head]
+		head += 1
+		local i, j = c[1], c[2]
+		for _, o in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+			local ni, nj = i + o[1], j + o[2]
+			if ni >= 1 and nj >= 1 and ni <= COUNT and nj <= COUNT and depth[ni][nj] == math.huge then
+				depth[ni][nj] = depth[i][j] + 1
+				table.insert(queue, { ni, nj })
+			end
+		end
+	end
+
+	-- collines : on les pose au cœur de l'île (là où il y a de la place)
 	local hills = {}
 	local tries = 0
-	local function fits(ci, cj, r)
-		for k = 0, 15 do
-			local a = k / 16 * math.pi * 2
-			for _, rr in { r + 1.5, r * 0.5 } do
-				local i, j = math.floor(ci + math.cos(a) * rr + 0.5), math.floor(cj + math.sin(a) * rr + 0.5)
-				if not inMask(i, j) then
-					return false
+	while #hills < 5 and tries < 3000 do
+		tries += 1
+		local ci, cj = math.floor(rng(2, COUNT - 1)), math.floor(rng(2, COUNT - 1))
+		local d = depth[ci][cj]
+		if d >= 4 then
+			local r = math.min(rng(4, 9), d + 1.5)
+			local ok = true
+			-- pas de colline à l'arrivée d'un pont, ni collée à une autre
+			for _, e in { { COUNT / 2, COUNT }, { COUNT / 2, 1 }, { 1, COUNT / 2 }, { COUNT, COUNT / 2 } } do
+				if math.sqrt((ci - e[1]) ^ 2 + (cj - e[2]) ^ 2) < r + 6 then
+					ok = false
 				end
 			end
-		end
-		return inMask(math.floor(ci + 0.5), math.floor(cj + 0.5))
-	end
-	while #hills < 3 and tries < 800 do
-		tries += 1
-		local r = rng(4.5, 7.5)
-		local ci, cj = rng(r + 2, COUNT - r - 2), rng(r + 2, COUNT - r - 2)
-		local ok = fits(ci, cj, r)
-		for _, e in { { COUNT / 2, COUNT }, { COUNT / 2, 1 }, { 1, COUNT / 2 }, { COUNT, COUNT / 2 } } do
-			if math.sqrt((ci - e[1]) ^ 2 + (cj - e[2]) ^ 2) < r + 7 then
-				ok = false
+			for _, h in hills do
+				if math.sqrt((ci - h[1]) ^ 2 + (cj - h[2]) ^ 2) < r + h[3] - 1 then
+					ok = false
+				end
+			end
+			if ok then
+				table.insert(hills, { ci, cj, r })
 			end
 		end
-		for _, h in hills do
-			if math.sqrt((ci - h[1]) ^ 2 + (cj - h[2]) ^ 2) < r + h[3] + 2 then
-				ok = false
-			end
-		end
-		if ok then
-			table.insert(hills, { ci, cj, r })
-		end
 	end
+
 	return function(i, j)
+		if i < 1 or j < 1 or i > COUNT or j > COUNT or not inMask(i, j) then
+			return 0
+		end
 		local best = 0
 		for _, h in hills do
 			local d = math.sqrt((i - h[1]) ^ 2 + (j - h[2]) ^ 2)
-			best = math.max(best, math.clamp(math.floor((h[3] - d) / 1.6), 0, 4))
+			best = math.max(best, math.clamp(math.floor((h[3] - d) / 1.35), 0, 6))
 		end
-		return best
+		-- jamais de marche au bord de l'île
+		return math.min(best, math.max(0, depth[i][j] - 2))
 	end
 end
 
--- Murs invisibles qui suivent le contour de la forme (sauf aux entrées)
+-- Bords extérieurs de la forme (pour le glaçage décoratif) : liste de { i, j, di, dj }
+-- (di, dj) = direction vers l'extérieur. Les arrivées de pont sont exclues.
+function shapes.edges(inMask, sides)
+	local out = {}
+	for i = 1, COUNT do
+		for j = 1, COUNT do
+			if inMask(i, j) then
+				local spanI = i >= SPAN_MIN and i <= SPAN_MAX
+				local spanJ = j >= SPAN_MIN and j <= SPAN_MAX
+				if not inMask(i, j - 1) and not (j == 1 and sides.N and spanI) then
+					table.insert(out, { i, j, 0, -1 })
+				end
+				if not inMask(i, j + 1) and not (j == COUNT and sides.S and spanI) then
+					table.insert(out, { i, j, 0, 1 })
+				end
+				if not inMask(i - 1, j) and not (i == 1 and sides.W and spanJ) then
+					table.insert(out, { i, j, -1, 0 })
+				end
+				if not inMask(i + 1, j) and not (i == COUNT and sides.E and spanJ) then
+					table.insert(out, { i, j, 1, 0 })
+				end
+			end
+		end
+	end
+	return out
+end
+
 function shapes.walls(ctx, id, minX, minZ, inMask, sides)
 	local TILE = lib.TILE
 	local H = lib.WALL_H

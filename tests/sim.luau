@@ -320,7 +320,7 @@ function sim.start(opts)
 		studio = opts.studio,
 		verbose = opts.verbose,
 	}
-	S.game = roblox.deserializePlace(fs.readFile(opts.place or "build/Popaint.rbxlx"))
+	S.game = roblox.deserializePlace(fs.readFile(opts.place or "build/Popaint.rbxl"))
 	-- "game" vu par les scripts : le vrai DataModel + JobId (propriété que Lune ne fournit pas)
 	local real = S.game
 	S.gameProxy = setmetatable({}, {

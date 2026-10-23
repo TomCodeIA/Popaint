@@ -64,7 +64,7 @@ function Daily.start()
 		local card = Ui.frame(content, {
 			Position = UDim2.new((i - 1) / 7, 4, 0, 0),
 			Size = UDim2.new(1 / 7, -8, 0, 190),
-			BackgroundColor3 = if i == 7 then Color3.fromRGB(255, 230, 120) else Ui.White,
+			BackgroundColor3 = if i == 7 then Ui.Yellow else Ui.PanelRaised,
 			ZIndex = 12,
 		})
 		Ui.corner(card, UDim.new(0, 14))
@@ -92,7 +92,7 @@ function Daily.start()
 	})
 
 	local button = Ui.button(Hud.leftBar, "🎁", Ui.Yellow, function()
-		if window.Visible then
+		if Ui.isOpen(window) then
 			Ui.close(window)
 		else
 			Daily.open()
@@ -108,8 +108,20 @@ function Daily.start()
 	Ui.corner(dot, UDim.new(1, 0))
 	Ui.stroke(dot, 2)
 
+	-- le cadeau se dandine tant qu'il y a une récompense à prendre
+	local wiggle: Tween? = nil
 	State.onChange(function(state: any)
 		refresh(state)
+		if dot.Visible and not wiggle then
+			button.Rotation = -8
+			local tw = game:GetService("TweenService"):Create(button, TweenInfo.new(0.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Rotation = 8 })
+			tw:Play()
+			wiggle = tw
+		elseif not dot.Visible and wiggle then
+			(wiggle :: Tween):Cancel()
+			wiggle = nil
+			button.Rotation = 0
+		end
 		-- s'ouvre tout seul une fois, si le cadeau est dispo et que le didacticiel est fini
 		if not autoOpened and state.Daily and state.Daily.CanClaim and state.Tutorial and state.Tutorial.Step == "Done" then
 			autoOpened = true

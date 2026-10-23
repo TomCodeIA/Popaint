@@ -39,7 +39,7 @@ DataService.Template = {
 	EquippedTrail = "",
 	Daily = { Streak = 0, LastClaimDay = 0 },
 	Boosts = { CoinsUntil = 0 },
-	Settings = { Language = "en", Music = 0.5, Sfx = 0.8, Shake = true, HighQuality = true },
+	Settings = { Language = "en", Music = 0.5, Sfx = 0.8, Shake = true, HighQuality = true, Theme = "dark" },
 	Tutorial = { Step = 1, Pops = 0 },
 	PaintColor = 0, -- 0 = pas encore choisie
 	LastOnline = 0,

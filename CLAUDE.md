@@ -2,7 +2,7 @@
 
 Popaint est un jeu Roblox (simulateur coloré « dopamine bomb », style stud) développé par Tom,
 **100 % avec l'IA**. Tom n'écrit pas de code : il décrit ce qu'il veut, l'IA code, teste et lui livre
-un fichier `build/Popaint.rbxlx` qu'il ouvre dans Roblox Studio et publie par-dessus son jeu.
+un fichier `build/Popaint.rbxl` qu'il ouvre dans Roblox Studio et publie par-dessus son jeu.
 Des mises à jour de contenu sont prévues **toutes les 2 semaines**.
 
 ## Façon de travailler avec Tom (important)
@@ -10,7 +10,7 @@ Des mises à jour de contenu sont prévues **toutes les 2 semaines**.
 - **Avant de coder, pose toutes les questions nécessaires** (Tom l'a demandé explicitement), puis
   continue à poser des questions à chaque étape. Propose des choix avec une option recommandée.
 - Ne livre **jamais** sans que `tools/check.sh` soit entièrement vert.
-- Livre le fichier `build/Popaint.rbxlx` et rappelle comment l'installer : Studio → File → Open from
+- Livre le fichier `build/Popaint.rbxl` et rappelle comment l'installer : Studio → File → Open from
   File, puis File → Publish to Roblox As… sur le jeu existant (overwrite).
 - Le document de conception (claude.ai) décrit le jeu ; tiens-le à jour quand une règle change.
 
@@ -28,7 +28,8 @@ tools/check.sh      # types, analyse stricte, construction, tests contenu/map, s
 | `src/Shared/` | Config (équilibrage), Formulas (formules pures), Locale (textes en 5 langues), Remotes |
 | `src/Server/` | services serveur (un fichier par système) ; `Main.server.luau` fixe l'ordre de démarrage |
 | `src/Client/` | interface et effets côté joueur ; `ClientMain.client.luau` démarre les modules |
-| `tools/build.luau` + `tools/map/` | fabrique le fichier de jeu : scripts + map entière (générée à partir du contenu) |
+| `src/Client/Quality.luau` + `Detail.luau` + `DayNight.luau` | fluidité automatique, détails de près, cycle jour/nuit |
+| `tools/build.luau` + `tools/map/` | fabrique le fichier de jeu : scripts + map entière (générée à partir du contenu) ; `tools/map/hub.luau` = fontaine, place, bord du hub, massifs |
 | `tests/` | `unit` (formules, contenu), `place` (fichier de jeu, map), `integration` (vrais scripts dans un serveur simulé) |
 | `CHANGELOG.md` | une entrée par version livrée |
 
@@ -46,6 +47,37 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 - **Quêtes** : `Content/Quests.luau` ; types disponibles listés en tête du fichier. Un nouveau type
   demande du code dans `src/Server/QuestService.luau` + la liste `KNOWN_QUEST_TYPES` des tests.
 - **Cosmétiques** : `Content/Cosmetics.luau`.
+- **Apparence d'un compagnon** : champ `Look` (Body, Extras, Accent) dans `Content/Companions.luau` ;
+  formes et accessoires dans `src/Shared/CompanionModels.luau` (listes vérifiées par les tests).
+- **Design system** : `src/Shared/Content/Design.luau` est la source du style (couleurs des deux
+  thèmes, six peintures et leur face « deep », polices, arrondis, reliefs, durées). C'est la copie en
+  code du design system créé par Tom dans Claude Design ; pour changer le style, on touche ce fichier.
+  Il alimente `Config.PaintPalette`, `src/Client/Ui.luau` (interface) et, via `lib.applyDesign`
+  (appelée par `tools/build.luau`), la palette vive du lobby.
+- **Interface** : `Ui.role(élément, "panel"|"raised"|"sunken"|"ink"|"inkMuted"|"edge")` fait suivre le
+  thème Jour/Nuit à un élément ; `Ui.depth` pose l'ombre dure (relief jouet) ; `Ui.deepOf(couleur)`
+  donne la face latérale d'une peinture. Pas de dégradé décoratif : des aplats.
+- **Style de la map** : deux palettes dans `tools/map/lib.luau` — `lib.P` (pastel) pour les zones, le
+  décor et les montagnes ; `lib.V` / `lib.VD` / `lib.VCANDY` / `lib.VRAINBOW` (peintures du design
+  system) pour le lobby et les entrées de zones. `lib.vivid(c)` rend franche une couleur pastel.
+  **Aucun fluo** : le matériau `Neon` est interdit partout (un test le
+  vérifie) ; pour faire briller, utilise `lib.glow` ou `M.Glass`.
+- **Donner du volume** : `lib.roundBox` (boîte à coins arrondis), `lib.blob` (boule déformée) et
+  `lib.drips` (glaçage qui coule le long d'un bord). Les petites pièces vont dans `lib.details(m)`
+  (affichées seulement de près) et les animations se posent avec `lib.anim` (Spin, Bob, Pulse, Wobble,
+  Sway, Drift, Swim, Blink, Flow, Hop, Shake). Une nouvelle animation s'ajoute dans
+  `src/Client/Animator.luau` **et** dans la liste `valid` de `tests/place.luau`.
+- **Particules** : `lib.particles(pièce, genre, couleurs, opts)` avec les genres de `lib.PARTICLE_KINDS`
+  (Petals, Soap, Fireflies, Snow, Dust, Leaves, Sparkle, Aura) ; `lib.airBox` crée la pièce invisible
+  qui les porte. L'ambiance d'une zone se règle dans le champ `Air` de son thème (`themes.luau`).
+- **Fluidité** : `src/Client/Quality.luau` choisit un niveau (1 léger / 2 moyen / 3 beau) selon le
+  réglage graphique du joueur et ses images par seconde ; Detail, Animator, Pets et Bubbles s'en
+  servent. N'ajoute pas de distance en dur : passe par `Quality.settings()`.
+- **Vérifier un modèle sans Studio** : `tools/preview.sh props|companions|base|centerpieces|showcase`
+  → image dans `build/preview/` (à regarder, et à envoyer à Tom). `showcase` = fontaine, œuf, portail,
+  pont, montagne, îlot.
+- **Ne jamais couvrir une case peignable** : dans une zone, tout décor passe par `info.InMask`
+  (cases) et `info.FreeR` (rayon libre au centre) ; un test vérifie qu'aucune pièce ne déborde.
 - **Équilibrage** : `src/Shared/Config.luau`.
 
 ## Règles à ne jamais casser (sinon perte de progression des joueurs)
@@ -60,7 +92,7 @@ La map est **entièrement générée** par `tools/map/` : ne demande jamais à T
 ## Livrer une version
 1. Augmente `Config.Version` et ajoute une entrée en haut de `CHANGELOG.md`.
 2. `tools/check.sh` entièrement vert.
-3. Envoie `build/Popaint.rbxlx` à Tom (ne commit pas `build/`, il est ignoré).
+3. Envoie `build/Popaint.rbxl` à Tom (ne commit pas `build/`, il est ignoré).
 4. Commit sur une branche, ouvre une PR vers `main` (ou pousse sur `main` si Tom l'a demandé).
 
 ## Limites connues des tests
@@ -68,3 +100,5 @@ Les tests exécutent les vrais scripts serveur dans un serveur simulé (Lune), m
 rendu à l'écran** ne peuvent être vérifiés que par Tom dans Studio (y compris l'émulateur mobile).
 Lune stocke les attributs entiers en float32 : le simulateur utilise donc des dates petites (1970) ;
 les tests d'événements avancent l'horloge explicitement.
+Le rendu d'aperçu est lent sur les très gros modèles (tout le hub) : préfère `showcase` ou un chemin
+précis plutôt que `Workspace.Map.Hub`.

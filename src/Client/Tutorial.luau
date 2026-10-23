@@ -65,7 +65,7 @@ local function target(step: string, rootPos: Vector3): Vector3?
 		return if m then m.Position + Vector3.new(0, 2, 0) else nil
 	elseif step == "OpenEgg" then
 		local egg = workspace:WaitForChild("Map"):WaitForChild("Eggs"):FindFirstChild(Config.MainZones[1].Id)
-		local shell = egg and egg:FindFirstChild("Shell")
+		local shell = egg and egg:FindFirstChild("Shell", true)
 		return if shell and shell:IsA("BasePart") then (shell :: BasePart).Position else nil
 	end
 	return nil
@@ -111,7 +111,7 @@ function Tutorial.start()
 	})
 	Ui.corner(hint, UDim.new(1, 0))
 	Ui.stroke(hint, 4)
-	Ui.gradient(hint, Color3.fromRGB(255, 170, 220), Ui.Pink)
+	Ui.gradient(hint, Ui.Pink, Ui.Pink)
 	hintLabel = Ui.label(hint, "", { Size = UDim2.new(1, -30, 0.7, 0), Position = UDim2.new(0, 15, 0.15, 0) })
 
 	marker = Instance.new("Part")
@@ -130,7 +130,7 @@ function Tutorial.start()
 	beam.FaceCamera = true
 	beam.Width0 = 0.8
 	beam.Width1 = 0.8
-	beam.LightEmission = 1
+	beam.LightEmission = 0.25
 	beam.Transparency = NumberSequence.new(0.2)
 	beam.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Config.PaintPalette[1]),

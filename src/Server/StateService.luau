@@ -15,6 +15,7 @@ local CompanionService = require(script.Parent:WaitForChild("CompanionService"))
 local DailyService = require(script.Parent:WaitForChild("DailyService")) :: any
 local BubbleService = require(script.Parent:WaitForChild("BubbleService")) :: any
 local Bus = require(script.Parent:WaitForChild("Bus")) :: any
+local ActionRouter = require(script.Parent:WaitForChild("ActionRouter")) :: any
 local ZoneAccess = require(script.Parent:WaitForChild("ZoneAccess")) :: any
 
 local StateService = {}
@@ -79,6 +80,7 @@ function StateService.build(player: Player): { [string]: any }?
 		TrainRate = Config.TreadmillRates[math.clamp(UpgradeService.level(player, "Treadmill") + 1, 1, #Config.TreadmillRates)],
 		Multiplier = BubbleService.coinMultiplier(player),
 		Language = d.Settings.Language,
+		Theme = d.Settings.Theme or "dark",
 	}
 end
 
@@ -91,6 +93,19 @@ end
 StateService.push = push
 
 function StateService.start()
+	-- Le joueur choisit son thème d'interface (Nuit / Jour) : on le garde dans sa sauvegarde.
+	ActionRouter.register("SetTheme", function(player: Player, name: any)
+		if name ~= "dark" and name ~= "light" then
+			return
+		end
+		local profile = DataService.get(player)
+		if not profile then
+			return
+		end
+		profile.Data.Settings.Theme = name
+		DataService.markDirty(player)
+		Bus.emit("Dirty", player)
+	end)
 	Bus.on("Dirty", function(player: Player)
 		dirty[player] = true
 	end)
